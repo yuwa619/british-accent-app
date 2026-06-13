@@ -10,7 +10,7 @@ The product helps non-native English speakers in the UK improve clarity, confide
 - TypeScript
 - Tailwind CSS v4
 - shadcn/ui
-- Supabase planned for Auth, Postgres, Storage, and RLS
+- Supabase for Auth, Postgres, Storage, and RLS
 - Azure AI Speech, OpenAI, and ElevenLabs planned behind server routes
 
 ## Getting Started
@@ -40,6 +40,18 @@ ENABLE_REAL_AI=false
 ENABLE_STRIPE_CHECKOUT=false
 ```
 
+For Phase 2 Supabase setup, configure:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+```
+
+See [docs/SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md) for migrations, seed data, Auth redirect URLs, RLS, and the private recordings bucket.
+
 ## Phase Status
 
-Phase 1 creates the Next.js foundation, shadcn/ui setup, route groups, placeholder MVP routes, environment template, and project documentation. Supabase, auth, storage, AI analysis, recording, analytics, and subscription flows begin in later phases.
+Phase 1 created the Next.js foundation, shadcn/ui setup, route groups, placeholder MVP routes, environment template, and project documentation.
+
+Phase 2 adds Supabase packages, SSR clients, auth middleware, email/password auth actions, onboarding persistence, dashboard data loading, migrations, RLS policies, private recordings bucket setup, and seed data for the first 10 lessons.

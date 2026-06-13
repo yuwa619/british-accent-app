@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { signUpAction } from "@/app/auth/actions";
+import { AuthForm } from "@/components/auth/auth-form";
 
 export default function SignUpPage() {
   return (
@@ -11,16 +11,11 @@ export default function SignUpPage() {
           Create account
         </h1>
         <p className="text-sm leading-6 text-muted-foreground">
-          Account creation, profile setup, and onboarding redirects arrive in
-          Phase 2.
+          Create your account, then continue to a short onboarding
+          questionnaire.
         </p>
       </div>
-      <Link
-        className={cn(buttonVariants({ size: "lg" }), "w-full no-underline")}
-        href="/onboarding"
-      >
-        Continue to onboarding
-      </Link>
+      <AuthForm action={signUpAction} mode="sign-up" />
       <p className="text-center text-sm text-muted-foreground">
         Already registered?{" "}
         <Link className="font-medium text-foreground" href="/auth/sign-in">

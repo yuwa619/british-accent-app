@@ -549,3 +549,33 @@ Verification:
 - `npm run lint`
 - `npm run build`
 - Browser smoke test for all Phase 1 routes at `http://localhost:3000`
+
+### Phase 2 — Supabase setup
+
+Status: completed.
+
+Completed:
+
+- Installed `@supabase/supabase-js` and `@supabase/ssr`.
+- Added browser, server, middleware, and server-only admin Supabase clients.
+- Added auth middleware for protected app routes with local mock-mode fallback when env vars are missing.
+- Made sign-in and sign-up pages functional with Supabase email/password server actions.
+- Added sign-out action and app-shell sign-out control.
+- Added onboarding persistence to `onboarding_responses` and profile goal fields.
+- Updated dashboard to fetch the signed-in profile and available lessons from Supabase, with graceful setup fallback.
+- Created `supabase/migrations/001_initial_schema.sql` with MVP tables, indexes, triggers, profile creation trigger, RLS policies, and private recordings bucket policies.
+- Created `supabase/seed.sql` with the first 10 lessons, lesson steps, and practice prompts.
+- Added `docs/SUPABASE_SETUP.md` and updated README setup notes.
+
+Next:
+
+- Begin Phase 3 core UI and onboarding polish once approved.
+
+Verification:
+
+- `npm run format`
+- `npm run format:check`
+- `npm run typecheck`
+- `npm run lint`
+- `npm run build`
+- Browser smoke test for `/`, `/auth/sign-in`, `/auth/sign-up`, `/onboarding`, `/dashboard`, `/lessons`, and `/settings`

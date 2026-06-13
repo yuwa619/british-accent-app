@@ -1,6 +1,8 @@
 import Link from "next/link";
 
+import { signOutAction } from "@/app/auth/actions";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { appRoutes } from "@/config/routes";
 import { siteConfig } from "@/config/site";
 
@@ -26,6 +28,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </Link>
             ))}
           </nav>
+          <form action={signOutAction} className="mt-6 hidden md:block">
+            <Button size="sm" type="submit" variant="outline">
+              Sign out
+            </Button>
+          </form>
         </aside>
         <main className="bg-background md:bg-muted/25">{children}</main>
       </div>

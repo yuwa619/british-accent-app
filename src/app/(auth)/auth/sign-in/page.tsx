@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { signInAction } from "@/app/auth/actions";
+import { AuthForm } from "@/components/auth/auth-form";
 
 export default function SignInPage() {
   return (
@@ -9,15 +9,10 @@ export default function SignInPage() {
       <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-semibold tracking-normal">Sign in</h1>
         <p className="text-sm leading-6 text-muted-foreground">
-          Supabase authentication will be connected in Phase 2.
+          Sign in with the email and password you used to create your account.
         </p>
       </div>
-      <Link
-        className={cn(buttonVariants({ size: "lg" }), "w-full no-underline")}
-        href="/dashboard"
-      >
-        Continue to dashboard
-      </Link>
+      <AuthForm action={signInAction} mode="sign-in" />
       <p className="text-center text-sm text-muted-foreground">
         New here?{" "}
         <Link className="font-medium text-foreground" href="/auth/sign-up">
