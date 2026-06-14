@@ -13,8 +13,8 @@ export function PrivacyConsentNotice({
       <AlertTitle>Voice privacy first</AlertTitle>
       <AlertDescription>
         {compact
-          ? "Before any voice upload, the app will ask for consent and explain retention controls."
-          : "Recording features arrive in Phase 4. Before any voice upload, the app will ask for consent, explain AI processing, and show retention controls. Scores are guidance for practice, not a judgement of your accent or identity."}
+          ? "Before any voice upload, the app explains consent, retention, and delete controls."
+          : "Before any voice upload, the app explains consent, AI processing plans, and retention controls. Recordings can be deleted, and future scores are guidance for practice, not a judgement of your accent or identity."}
       </AlertDescription>
     </Alert>
   );

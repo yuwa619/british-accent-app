@@ -268,8 +268,8 @@ export const mockPracticeHistory: PracticeHistoryItem[] = [
   {
     title: "Short diagnostic passage",
     type: "Diagnostic",
-    date: "Coming in Phase 4",
-    status: "Coming soon",
+    date: "Ready to record",
+    status: "Analysis next",
   },
 ];
 

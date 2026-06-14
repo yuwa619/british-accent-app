@@ -57,3 +57,14 @@ Phase 1 created the Next.js foundation, shadcn/ui setup, route groups, placehold
 Phase 2 adds Supabase packages, SSR clients, auth middleware, email/password auth actions, onboarding persistence, dashboard data loading, migrations, RLS policies, private recordings bucket setup, and seed data for the first 10 lessons.
 
 Phase 3 polishes the core UI and onboarding experience: premium landing page, auth shell, multi-section onboarding form, Supabase/mock-aware dashboard and lessons, polished diagnostic/practice/progress/settings placeholders, privacy/terms content, reusable UI components, and graceful mock-mode states.
+
+Phase 4 adds browser audio recording with MediaRecorder, microphone permission handling, recording timer, preview playback, mock-mode saving, Supabase Storage upload, recordings metadata, individual recording deletion, recent recordings UI, and privacy messaging. Real speech analysis remains deferred to Phase 5.
+
+## Recording Development Notes
+
+- Recording starts only after the user clicks `Record`.
+- The app prefers `audio/webm` when supported and falls back to another browser-supported audio MIME type.
+- Saved Supabase objects use the private `recordings` bucket with paths like `{user_id}/{recording_id}.webm`.
+- If Supabase env vars are blank, uploads return mock success and stay local to the current recording page state.
+- Users can preview before saving, discard and re-record, and delete saved recordings.
+- AI analysis, transcription, scoring, reference audio, and pitch feedback are not active yet.

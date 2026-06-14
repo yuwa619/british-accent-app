@@ -19,6 +19,7 @@ We are turning a 49-page PRD into a build-ready MVP plan. The product is a **UK 
 - **Phase 1 complete:** Next.js 15 App Router foundation, TypeScript, Tailwind CSS, shadcn/ui setup, route groups, placeholder MVP routes, `.env.example`, README, and baseline documentation.
 - **Phase 2 complete:** Supabase packages and SSR clients, auth middleware, email/password auth actions, onboarding persistence, MVP schema migration, RLS policies, private recordings bucket plan, seed data for the first 10 lessons, and Supabase setup documentation.
 - **Phase 3 complete:** Premium landing page, polished auth shell, multi-section onboarding form, Supabase/mock-aware dashboard data, lesson list/detail UI, polished diagnostic/shadowing/roleplay/progress/settings placeholders, privacy and terms copy, reusable UI components, and graceful mock-mode states.
+- **Phase 4 complete:** Browser MediaRecorder flow, microphone permission handling, timer, preview playback, mock-mode saving, Supabase Storage upload, `recordings` metadata, individual delete flow, recent recordings widgets, recording privacy notices, and recording UI on lesson, diagnostic, shadowing, dashboard, and settings pages.
 
 ---
 
@@ -587,3 +588,31 @@ Verification:
 - `npm run lint`
 - `npm run build`
 - Browser smoke test for `/`, `/auth/sign-in`, `/auth/sign-up`, `/onboarding`, `/dashboard`, `/lessons`, and `/settings`
+
+### Phase 4 — Browser audio recording and storage upload
+
+Status: completed.
+
+Completed:
+
+- Added reusable recording components: `AudioRecorder` flow via `RecordingUploadCard`, `RecordingButton`, `AudioPlayer`, `WaveformPreview`, `RecordingTimer`, `RecordingStatusBadge`, `RecordingPrivacyNotice`, `RecordingList`, `DeleteRecordingDialog`, and `MicrophonePermissionHelp`.
+- Added `useAudioRecorder` for MediaRecorder state, microphone permission requests, stream cleanup, object URL cleanup, timer state, unsupported-browser handling, and a 2-minute MVP cap.
+- Added `/api/recordings` for GET and multipart POST upload, with mock-mode success when Supabase is not configured.
+- Added `/api/recordings/[recordingId]` for authenticated delete, including Storage object removal.
+- Added recording UI to lesson detail, diagnostic, and shadowing pages.
+- Added recent recordings and individual delete controls to dashboard and settings.
+- Kept AI analysis, transcription, scoring, reference TTS, and pitch analysis out of scope for Phase 5+.
+
+Next:
+
+- Begin Phase 5 speech analysis integration: Azure pronunciation assessment, transcription, GPT-4o-mini coaching feedback, saved `speech_analysis_results`, and feedback page rendering.
+
+Verification:
+
+- `npm run format`
+- `npm run format:check`
+- `npm run typecheck`
+- `npm run lint`
+- `npm run build`
+- Browser smoke test for `/`, `/dashboard`, `/lessons`, `/lessons/clear-british-vowels`, `/diagnostic`, `/practice/shadowing`, and `/settings`
+- Manual mock-mode recording test: record, stop, preview, discard/re-record, save, and delete

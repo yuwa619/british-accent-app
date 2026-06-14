@@ -53,6 +53,20 @@ export type PracticePrompt = {
   created_at: string;
 };
 
+export type Recording = {
+  id: string;
+  user_id: string;
+  lesson_id: string | null;
+  prompt_id: string | null;
+  recording_type: "diagnostic" | "lesson" | "shadowing" | "roleplay";
+  storage_path: string;
+  duration_seconds: number | null;
+  transcript: string | null;
+  status: "uploaded" | "analysing" | "complete" | "failed";
+  created_at: string;
+  updated_at: string;
+};
+
 export type OnboardingResponse = {
   id: string;
   user_id: string;
@@ -159,6 +173,50 @@ export type Database = {
             columns: ["lesson_id"];
             isOneToOne: false;
             referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      recordings: {
+        Row: Recording;
+        Insert: {
+          id?: string;
+          user_id: string;
+          lesson_id?: string | null;
+          prompt_id?: string | null;
+          recording_type: Recording["recording_type"];
+          storage_path: string;
+          duration_seconds?: number | null;
+          transcript?: string | null;
+          status?: Recording["status"];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<
+          Omit<Recording, "id" | "user_id" | "created_at" | "updated_at">
+        > & {
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recordings_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recordings_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recordings_prompt_id_fkey";
+            columns: ["prompt_id"];
+            isOneToOne: false;
+            referencedRelation: "practice_prompts";
             referencedColumns: ["id"];
           },
         ];

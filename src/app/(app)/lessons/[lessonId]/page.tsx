@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { ArrowLeftIcon, HeadphonesIcon, Mic2Icon } from "lucide-react";
+import { ArrowLeftIcon, HeadphonesIcon } from "lucide-react";
 
-import { ComingSoonCard } from "@/components/app/coming-soon-card";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
+import { RecordingUploadCard } from "@/components/recording/recording-upload-card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -47,6 +47,12 @@ export default async function LessonDetailPage({
       </section>
     );
   }
+
+  const firstPrompt = lesson.prompts[0] ?? null;
+  const practiceText =
+    firstPrompt?.prompt_text ??
+    lesson.steps.find((step) => step.practice_text)?.practice_text ??
+    null;
 
   return (
     <section className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
@@ -117,30 +123,15 @@ export default async function LessonDetailPage({
           </CardContent>
         </Card>
 
-        <div className="space-y-4">
-          <ComingSoonCard
-            icon={Mic2Icon}
-            title="Recording practice"
-            description="Browser recording, playback, upload, and delete controls are planned for Phase 4."
-            phase="Phase 4"
-          >
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                You will be able to listen, repeat, compare, and then receive
-                speech feedback in later phases.
-              </p>
-              <Link
-                className={cn(
-                  buttonVariants({ variant: "outline" }),
-                  "w-fit no-underline"
-                )}
-                href="/practice/shadowing"
-              >
-                Preview shadowing
-              </Link>
-            </div>
-          </ComingSoonCard>
-
+        <div className="flex flex-col gap-4">
+          <RecordingUploadCard
+            description="Record yourself reading the practice prompt, listen back, and save it when you are happy with the attempt."
+            lessonId={lesson.id}
+            practiceText={practiceText}
+            promptId={firstPrompt?.id ?? null}
+            recordingType="lesson"
+            title="Record this lesson"
+          />
           <Card>
             <CardHeader>
               <CardTitle>Practice prompt</CardTitle>

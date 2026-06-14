@@ -44,7 +44,8 @@ export default function PrivacyPage() {
         <CardHeader>
           <CardTitle>Voice recordings</CardTitle>
           <CardDescription>
-            Recording features are planned for Phase 4 and analysis for Phase 5.
+            Recording upload is available in the MVP. Analysis and feedback are
+            planned for Phase 5.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 text-sm leading-7 text-muted-foreground">

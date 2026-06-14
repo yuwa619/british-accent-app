@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { BookOpenTextIcon, Mic2Icon, MessageCircleIcon } from "lucide-react";
 
-import { ComingSoonCard } from "@/components/app/coming-soon-card";
 import { PageHeader } from "@/components/app/page-header";
+import { RecordingUploadCard } from "@/components/recording/recording-upload-card";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -46,7 +46,7 @@ export default function DiagnosticPage() {
       <PageHeader
         eyebrow="Diagnostic"
         title="A short baseline for clarity, rhythm, and confidence."
-        description="The diagnostic will guide your first focus areas without judging your accent or identity. Recording arrives in Phase 4 and AI scoring follows in Phase 5."
+        description="Record the three diagnostic prompts now. Phase 5 will add analysis and baseline scoring; for this phase, recordings are saved only for practice and storage validation."
       />
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -71,25 +71,30 @@ export default function DiagnosticPage() {
         ))}
       </div>
 
-      <ComingSoonCard
-        icon={Mic2Icon}
-        title="Recording opens in Phase 4"
-        description="This page is ready for microphone permission, recording preview, upload, and delete controls."
-        phase="Phase 4"
-      >
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Button disabled>Start diagnostic soon</Button>
-          <Link
-            className={cn(
-              buttonVariants({ variant: "outline" }),
-              "no-underline"
-            )}
-            href="/dashboard"
-          >
-            Back to dashboard
-          </Link>
-        </div>
-      </ComingSoonCard>
+      <div className="grid gap-6">
+        {steps.map((step, index) => (
+          <RecordingUploadCard
+            description={`${step.description} Diagnostic analysis arrives in Phase 5.`}
+            key={`diagnostic-recorder-${step.title}`}
+            practiceText={step.sample}
+            recordingType="diagnostic"
+            title={`Record diagnostic step ${index + 1}`}
+          />
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-lg border bg-background p-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-muted-foreground">
+          Diagnostic analysis, score trends, and personalised focus areas come
+          next in Phase 5.
+        </p>
+        <Link
+          className={cn(buttonVariants({ variant: "outline" }), "no-underline")}
+          href="/dashboard"
+        >
+          Back to dashboard
+        </Link>
+      </div>
     </section>
   );
 }

@@ -17,6 +17,7 @@ import { PracticeHistoryTable } from "@/components/app/practice-history-table";
 import { PrivacyConsentNotice } from "@/components/app/privacy-consent-notice";
 import { ProgressCard } from "@/components/app/progress-card";
 import { SubscriptionBanner } from "@/components/app/subscription-banner";
+import { RecordingList } from "@/components/recording/recording-list";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -27,10 +28,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getDashboardSummary } from "@/lib/data/dashboard";
+import { getRecentRecordings } from "@/lib/data/recordings";
 import { cn } from "@/lib/utils";
 
 export default async function DashboardPage() {
-  const summary = await getDashboardSummary();
+  const [summary, recentRecordings] = await Promise.all([
+    getDashboardSummary(),
+    getRecentRecordings(4),
+  ]);
   const firstName =
     summary.profile?.full_name?.split(" ")[0] ??
     summary.profile?.email?.split("@")[0] ??
@@ -111,7 +116,7 @@ export default async function DashboardPage() {
           title="Progress snapshot"
           description="Baseline placeholder until diagnostic scoring is active."
           value={28}
-          footer="Phase 4 adds recording. Phase 5 adds speech analysis."
+          footer="Recording is available now. Phase 5 adds speech analysis."
         />
       </div>
 
@@ -201,6 +206,24 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <HistoryIcon className="size-5 text-primary" />
+          <CardTitle>Recent recordings</CardTitle>
+          <CardDescription>
+            Saved audio clips from lessons, diagnostics, and shadowing practice.
+            Mock-mode uploads stay local to the recording page session.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <RecordingList
+            emptyDescription="Recordings saved with Supabase will appear here. In mock mode, saved clips are kept only on the recording screen for the current session."
+            emptyTitle="No saved recordings yet"
+            recordings={recentRecordings}
+          />
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
         <SubscriptionBanner />

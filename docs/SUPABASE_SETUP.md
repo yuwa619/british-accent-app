@@ -104,6 +104,16 @@ recordings/{user_id}/{recording_id}.webm
 
 Authenticated users can read, upload, update, and delete only objects under their own user id. The service role bypasses RLS for admin cleanup jobs such as retention purges.
 
+Phase 4 upload behaviour:
+
+- `POST /api/recordings` accepts multipart form data with an `audio` file, `recording_type`, optional `lesson_id`, optional `prompt_id`, and optional `duration_seconds`.
+- The server validates the authenticated user, recording type, audio MIME type, and file size before upload.
+- Audio uploads to the private `recordings` bucket and then inserts a row into `public.recordings`.
+- If the metadata insert fails after Storage upload, the route removes the uploaded object.
+- `GET /api/recordings` returns the signed-in user's latest recordings.
+- `DELETE /api/recordings/[recordingId]` verifies ownership, removes the Storage object, and deletes the metadata row.
+- If Supabase env vars are missing locally, the API returns mock success and does not persist audio.
+
 ## 7. RLS Model
 
 RLS is enabled on all user-owned tables. Policies follow this pattern:
@@ -130,6 +140,7 @@ If Supabase env vars are missing:
 - Middleware does not block protected routes.
 - Auth forms show a clear setup message when submitted.
 - Dashboard and onboarding show developer setup guidance.
+- Recording pages still allow browser recording and preview. Save actions use mock mode and are not persistent.
 
 Once env vars are set, middleware protects:
 

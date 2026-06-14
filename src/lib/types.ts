@@ -3,6 +3,7 @@ import type {
   LessonStep,
   PracticePrompt,
   Profile,
+  Recording,
 } from "@/lib/supabase/database.types";
 
 export type Lesson = SupabaseLesson & {
@@ -57,4 +58,11 @@ export type DashboardSummary = {
 export type OnboardingOption = {
   label: string;
   description: string;
+};
+
+export type RecordingType = Recording["recording_type"];
+
+export type RecordingItem = Recording & {
+  local_audio_url?: string;
+  is_mock?: boolean;
 };

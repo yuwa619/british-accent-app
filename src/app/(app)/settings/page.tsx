@@ -10,6 +10,7 @@ import {
 import { signOutAction } from "@/app/auth/actions";
 import { PageHeader } from "@/components/app/page-header";
 import { SubscriptionBanner } from "@/components/app/subscription-banner";
+import { RecordingList } from "@/components/recording/recording-list";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,6 +19,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getRecentRecordings } from "@/lib/data/recordings";
 
 function SettingRow({
   icon: Icon,
@@ -46,13 +48,15 @@ function SettingRow({
   );
 }
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const recentRecordings = await getRecentRecordings(10);
+
   return (
     <section className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
       <PageHeader
         eyebrow="Settings"
         title="Manage profile, privacy, and beta access."
-        description="These controls prepare the MVP for responsible voice practice. Full recording deletion and data export flows arrive in later phases."
+        description="These controls prepare the MVP for responsible voice practice. Individual recording deletion is now available; full account-level data export and deletion come later."
       />
 
       <Card>
@@ -91,7 +95,7 @@ export default function SettingsPage() {
           <SettingRow
             icon={ShieldCheckIcon}
             title="Recording retention"
-            description="Default retention policy for user recordings."
+            description="Default retention policy for user recordings. Automated purge scheduling is planned for launch readiness."
             value="30 days"
           />
           <SettingRow
@@ -107,18 +111,24 @@ export default function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Data controls</CardTitle>
+          <CardTitle>Recording controls</CardTitle>
           <CardDescription>
-            Destructive account and recording actions are placeholders until the
-            storage flow exists.
+            Delete individual saved recordings from the current account. Mock
+            recordings are session-only and disappear when the page state
+            resets.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3">
+          <RecordingList
+            emptyDescription="Your saved recordings will appear here after you record and save from a lesson, diagnostic, or shadowing page."
+            emptyTitle="No recordings to manage"
+            recordings={recentRecordings}
+          />
           <SettingRow
             icon={Trash2Icon}
-            title="Delete recordings"
-            description="Remove individual recordings once Phase 4 storage is active."
-            value="Coming in Phase 4"
+            title="Delete all recordings"
+            description="Bulk deletion will remove all stored voice recordings and matching metadata after a confirmation step."
+            value="Coming later"
           />
           <SettingRow
             icon={Trash2Icon}
