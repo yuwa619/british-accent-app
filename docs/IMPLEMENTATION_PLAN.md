@@ -14,6 +14,14 @@ We are turning a 49-page PRD into a build-ready MVP plan. The product is a **UK 
 
 ---
 
+## Current Implementation Status
+
+- **Phase 1 complete:** Next.js 15 App Router foundation, TypeScript, Tailwind CSS, shadcn/ui setup, route groups, placeholder MVP routes, `.env.example`, README, and baseline documentation.
+- **Phase 2 complete:** Supabase packages and SSR clients, auth middleware, email/password auth actions, onboarding persistence, MVP schema migration, RLS policies, private recordings bucket plan, seed data for the first 10 lessons, and Supabase setup documentation.
+- **Phase 3 complete:** Premium landing page, polished auth shell, multi-section onboarding form, Supabase/mock-aware dashboard data, lesson list/detail UI, polished diagnostic/shadowing/roleplay/progress/settings placeholders, privacy and terms copy, reusable UI components, and graceful mock-mode states.
+
+---
+
 ## 1. Executive Technical Summary
 
 **What we're building:** A mobile-responsive web app where a UK-based learner records short speech samples and receives instant, encouraging, credible pronunciation/prosody feedback against an SSBE reference; works through a structured 30-day curriculum of pronunciation lessons; practices shadowing and side-by-side comparison; and rehearses UK workplace/interview scenarios with an AI roleplay partner. Progress, focus areas (problem sounds), and history are tracked.

@@ -29,7 +29,7 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
             className={cn(buttonVariants({ size: "sm" }), "no-underline")}
             href="/auth/sign-up"
           >
-            Start diagnostic
+            Start practising
           </Link>
         </div>
       </header>

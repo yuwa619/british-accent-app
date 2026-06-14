@@ -1,5 +1,22 @@
 import Link from "next/link";
+import {
+  ArrowRightIcon,
+  ClipboardCheckIcon,
+  HistoryIcon,
+  MessageSquareTextIcon,
+  ShieldCheckIcon,
+  SparklesIcon,
+} from "lucide-react";
 
+import { EmptyState } from "@/components/app/empty-state";
+import { FocusAreaBadge } from "@/components/app/focus-area-badge";
+import { LessonCard } from "@/components/app/lesson-card";
+import { MetricCard } from "@/components/app/metric-card";
+import { PageHeader } from "@/components/app/page-header";
+import { PracticeHistoryTable } from "@/components/app/practice-history-table";
+import { PrivacyConsentNotice } from "@/components/app/privacy-consent-notice";
+import { ProgressCard } from "@/components/app/progress-card";
+import { SubscriptionBanner } from "@/components/app/subscription-banner";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -9,146 +26,192 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { Lesson, Profile } from "@/lib/supabase/database.types";
-import {
-  getMissingSupabaseEnvKeys,
-  isSupabaseConfigured,
-} from "@/lib/supabase/env";
-import { createClient } from "@/lib/supabase/server";
+import { getDashboardSummary } from "@/lib/data/dashboard";
 import { cn } from "@/lib/utils";
 
-async function getDashboardData(): Promise<{
-  profile: Profile | null;
-  lessons: Lesson[];
-  message: string | null;
-}> {
-  if (!isSupabaseConfigured()) {
-    return {
-      profile: null,
-      lessons: [],
-      message: `Supabase is not configured. Missing: ${getMissingSupabaseEnvKeys().join(", ")}`,
-    };
-  }
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return {
-      profile: null,
-      lessons: [],
-      message: "Sign in to load your profile and lesson path.",
-    };
-  }
-
-  const [{ data: profile }, { data: lessons }] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
-    supabase
-      .from("lessons")
-      .select("*")
-      .eq("is_published", true)
-      .order("sort_order", { ascending: true })
-      .limit(4),
-  ]);
-
-  return {
-    profile,
-    lessons: lessons ?? [],
-    message: null,
-  };
-}
-
 export default async function DashboardPage() {
-  const { profile, lessons, message } = await getDashboardData();
+  const summary = await getDashboardSummary();
+  const firstName =
+    summary.profile?.full_name?.split(" ")[0] ??
+    summary.profile?.email?.split("@")[0] ??
+    "there";
 
   return (
-    <section className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6 lg:px-8">
-      <div className="flex flex-col gap-3">
-        <Badge variant="secondary" className="w-fit">
-          Phase 2
-        </Badge>
-        <div className="flex max-w-3xl flex-col gap-3">
-          <h1 className="text-3xl font-semibold tracking-normal text-balance sm:text-5xl">
-            Dashboard
-          </h1>
-          <p className="text-base leading-7 text-muted-foreground sm:text-lg">
-            Your Supabase-backed home base for profile status, onboarding, and
-            the first available lessons.
-          </p>
-        </div>
-      </div>
+    <section className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
+      <PageHeader
+        eyebrow="Dashboard"
+        title={`Welcome, ${firstName}.`}
+        description="Your practice home for British pronunciation, confidence-building lessons, and UK workplace speaking preparation."
+        action={
+          <Link
+            className={cn(buttonVariants({ size: "lg" }), "no-underline")}
+            href="/diagnostic"
+          >
+            Start diagnostic
+            <ArrowRightIcon data-icon="inline-end" />
+          </Link>
+        }
+      />
 
-      {message ? (
+      {summary.developerMessage ? (
         <Card>
           <CardHeader>
-            <CardTitle>Developer setup</CardTitle>
-            <CardDescription>{message}</CardDescription>
+            <CardTitle>Developer note</CardTitle>
+            <CardDescription>{summary.developerMessage}</CardDescription>
           </CardHeader>
         </Card>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+      <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <Card>
           <CardHeader>
-            <CardTitle>
-              {profile?.full_name ? `Welcome, ${profile.full_name}` : "Profile"}
-            </CardTitle>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge
+                variant={summary.onboardingComplete ? "secondary" : "outline"}
+              >
+                {summary.onboardingComplete
+                  ? "Onboarding complete"
+                  : "Onboarding recommended"}
+              </Badge>
+              <Badge
+                variant={summary.diagnosticComplete ? "secondary" : "outline"}
+              >
+                {summary.diagnosticComplete
+                  ? "Diagnostic complete"
+                  : "Diagnostic next"}
+              </Badge>
+            </div>
+            <CardTitle>Today&apos;s practice</CardTitle>
             <CardDescription>
-              Basic profile fields created by the Supabase auth trigger.
+              A short, realistic plan for improving clarity without overloading
+              your day.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-3 text-sm">
-            <div className="rounded-lg border bg-background p-3">
-              Email: {profile?.email ?? "Waiting for Supabase session"}
-            </div>
-            <div className="rounded-lg border bg-background p-3">
-              Goal: {profile?.target_goal ?? "Onboarding not completed yet"}
-            </div>
-            <div className="rounded-lg border bg-background p-3">
-              Native language: {profile?.native_language ?? "Not set"}
-            </div>
+          <CardContent className="grid gap-3 sm:grid-cols-3">
+            {[
+              ["1", "Complete profile", "/onboarding"],
+              ["2", "Try diagnostic preview", "/diagnostic"],
+              ["3", "Open first lesson", "/lessons/clear-british-vowels"],
+            ].map(([step, label, href]) => (
+              <Link
+                className="flex flex-col gap-3 rounded-lg border bg-background p-4 hover:bg-muted/60"
+                href={href}
+                key={label}
+              >
+                <span className="grid size-9 place-items-center rounded-lg bg-primary text-sm font-medium text-primary-foreground">
+                  {step}
+                </span>
+                <span className="font-medium">{label}</span>
+              </Link>
+            ))}
+          </CardContent>
+        </Card>
+
+        <ProgressCard
+          title="Progress snapshot"
+          description="Baseline placeholder until diagnostic scoring is active."
+          value={28}
+          footer="Phase 4 adds recording. Phase 5 adds speech analysis."
+        />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {summary.metrics.slice(0, 4).map((metric) => (
+          <MetricCard key={metric.label} metric={metric} />
+        ))}
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+        <Card>
+          <CardHeader>
+            <SparklesIcon className="size-5 text-primary" />
+            <CardTitle>Focus areas</CardTitle>
+            <CardDescription>
+              Early placeholders that will become personalised after analysis.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-3">
+            {summary.focusAreas.map((focusArea) => (
+              <FocusAreaBadge key={focusArea.label} focusArea={focusArea} />
+            ))}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Available lessons</CardTitle>
+            <CardTitle>Continue learning</CardTitle>
             <CardDescription>
-              Seeded from `supabase/seed.sql` after migrations are applied.
+              Start with pronunciation foundations before roleplay and shadowing
+              arrive.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-3">
-            {lessons.length > 0 ? (
-              lessons.map((lesson) => (
-                <Link
-                  className="rounded-lg border bg-background p-4 hover:bg-muted"
-                  href={`/lessons/${lesson.slug}`}
-                  key={lesson.id}
-                >
-                  <p className="font-medium">{lesson.title}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {lesson.skill_focus} · {lesson.estimated_minutes} min
-                  </p>
-                </Link>
-              ))
-            ) : (
-              <div className="rounded-lg border bg-background p-4 text-sm text-muted-foreground">
-                Lesson data will appear here after Supabase migrations and seed
-                data are applied.
-              </div>
-            )}
+          <CardContent className="grid gap-4 md:grid-cols-2">
+            {summary.lessons.slice(0, 2).map((lesson) => (
+              <LessonCard key={lesson.id} lesson={lesson} />
+            ))}
           </CardContent>
         </Card>
       </div>
 
-      <Link
-        className={cn(buttonVariants({ size: "lg" }), "w-fit no-underline")}
-        href="/lessons"
-      >
-        Browse all lessons
-      </Link>
+      <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <Card>
+          <CardHeader>
+            <HistoryIcon className="size-5 text-primary" />
+            <CardTitle>Recent practice</CardTitle>
+            <CardDescription>
+              Your lesson, diagnostic, shadowing, and roleplay history will
+              appear here.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {summary.recentPractice.length ? (
+              <PracticeHistoryTable rows={summary.recentPractice} />
+            ) : (
+              <EmptyState
+                icon={ClipboardCheckIcon}
+                title="No practice yet"
+                description="Complete onboarding and open your first lesson to start building history."
+                actionHref="/lessons"
+                actionLabel="Browse lessons"
+              />
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <MessageSquareTextIcon className="size-5 text-primary" />
+            <CardTitle>Roleplay preview</CardTitle>
+            <CardDescription>
+              Turn-based UK workplace conversations arrive after recording and
+              analysis.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Link
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "w-fit no-underline"
+              )}
+              href="/practice/roleplay"
+            >
+              Preview scenarios
+            </Link>
+            <PrivacyConsentNotice compact />
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
+        <SubscriptionBanner />
+        <div className="flex items-center gap-3 rounded-lg border bg-background p-4 text-sm text-muted-foreground">
+          <ShieldCheckIcon className="size-5 text-primary" />
+          <p>
+            Future recordings will use private storage, 30-day retention
+            controls, and delete options from settings.
+          </p>
+        </div>
+      </div>
     </section>
   );
 }

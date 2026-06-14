@@ -9,6 +9,15 @@ export type AuthActionState = {
   message?: string;
 };
 
+export type OnboardingActionState = {
+  message?: string;
+  fieldErrors?: {
+    nativeLanguage?: string;
+    currentLevel?: string;
+    primaryGoal?: string;
+  };
+};
+
 const missingSupabaseMessage =
   "Supabase is not configured yet. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local to enable authentication.";
 
@@ -102,7 +111,10 @@ export async function signOutAction() {
   redirect("/auth/sign-in");
 }
 
-export async function saveOnboardingAction(formData: FormData) {
+export async function saveOnboardingAction(
+  _previousState: OnboardingActionState,
+  formData: FormData
+): Promise<OnboardingActionState> {
   if (!isSupabaseConfigured()) {
     redirect("/dashboard?setup=supabase-missing");
   }
@@ -120,31 +132,81 @@ export async function saveOnboardingAction(formData: FormData) {
   const currentLevel = readRequiredText(formData, "currentLevel");
   const primaryGoal = readRequiredText(formData, "primaryGoal");
   const profession = readRequiredText(formData, "profession");
+  const currentChallenge = readRequiredText(formData, "currentChallenge");
   const speakingConfidenceRaw = readRequiredText(
     formData,
     "speakingConfidence"
   );
+  const allowAiProcessing = formData.get("allowAiProcessing") === "yes";
   const targetSituations = formData
     .getAll("targetSituations")
     .filter((value): value is string => typeof value === "string");
 
-  await supabase.from("onboarding_responses").insert({
-    user_id: user.id,
-    native_language: nativeLanguage || null,
-    current_level: currentLevel || null,
-    primary_goal: primaryGoal || null,
-    profession: profession || null,
-    speaking_confidence: Number(speakingConfidenceRaw) || null,
-    target_situations: targetSituations.length ? targetSituations : null,
-  });
+  const fieldErrors: OnboardingActionState["fieldErrors"] = {};
 
-  await supabase
-    .from("profiles")
-    .update({
+  if (!nativeLanguage) {
+    fieldErrors.nativeLanguage = "Add your native language or language family.";
+  }
+
+  if (!currentLevel) {
+    fieldErrors.currentLevel = "Choose the statement that fits you best.";
+  }
+
+  if (!primaryGoal) {
+    fieldErrors.primaryGoal = "Choose your main goal.";
+  }
+
+  if (Object.keys(fieldErrors).length > 0) {
+    return {
+      fieldErrors,
+      message: "Please complete the highlighted onboarding fields.",
+    };
+  }
+
+  const { error: onboardingError } = await supabase
+    .from("onboarding_responses")
+    .insert({
+      user_id: user.id,
       native_language: nativeLanguage || null,
-      target_goal: primaryGoal || null,
-    })
-    .eq("id", user.id);
+      current_level: currentLevel || null,
+      primary_goal: primaryGoal || null,
+      profession: profession || null,
+      speaking_confidence: Number(speakingConfidenceRaw) || null,
+      target_situations: targetSituations.length ? targetSituations : null,
+      current_challenge: currentChallenge || null,
+      allow_ai_processing: allowAiProcessing,
+    });
+
+  if (onboardingError) {
+    return { message: onboardingError.message };
+  }
+
+  const [{ error: profileError }, { error: settingsError }] = await Promise.all(
+    [
+      supabase
+        .from("profiles")
+        .update({
+          native_language: nativeLanguage || null,
+          target_goal: primaryGoal || null,
+        })
+        .eq("id", user.id),
+      supabase
+        .from("user_settings")
+        .update({
+          allow_ai_processing: allowAiProcessing,
+        })
+        .eq("user_id", user.id),
+    ]
+  );
+
+  if (profileError || settingsError) {
+    return {
+      message:
+        profileError?.message ??
+        settingsError?.message ??
+        "Your onboarding response was saved, but profile settings need another try.",
+    };
+  }
 
   redirect("/dashboard");
 }

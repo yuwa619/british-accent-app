@@ -1,6 +1,6 @@
-import { saveOnboardingAction } from "@/app/auth/actions";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { OnboardingForm } from "@/components/app/onboarding-form";
+import { PageHeader } from "@/components/app/page-header";
+import { PrivacyConsentNotice } from "@/components/app/privacy-consent-notice";
 import {
   Card,
   CardContent,
@@ -9,127 +9,65 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { isSupabaseConfigured } from "@/lib/supabase/env";
+  getMissingSupabaseEnvKeys,
+  isSupabaseConfigured,
+} from "@/lib/supabase/env";
 
 export default function OnboardingPage() {
-  return (
-    <section className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-10 sm:px-6 lg:px-8">
-      <div className="flex flex-col gap-3">
-        <Badge variant="secondary" className="w-fit">
-          Phase 2
-        </Badge>
-        <div className="flex max-w-3xl flex-col gap-3">
-          <h1 className="text-3xl font-semibold tracking-normal text-balance sm:text-5xl">
-            Onboarding
-          </h1>
-          <p className="text-base leading-7 text-muted-foreground sm:text-lg">
-            Capture language background, confidence, and UK professional
-            communication goals so the coach can recommend a useful path.
-          </p>
-        </div>
-      </div>
+  const mockMode = !isSupabaseConfigured();
 
-      {!isSupabaseConfigured() ? (
+  return (
+    <section className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
+      <PageHeader
+        eyebrow="Speaking profile"
+        title="Shape your practice around real UK conversations."
+        description="Tell us about your language background, speaking confidence, and the situations where you want clearer, calmer speech."
+      />
+
+      {mockMode ? (
         <Card>
           <CardHeader>
-            <CardTitle>Supabase setup needed</CardTitle>
+            <CardTitle>Developer mock mode</CardTitle>
             <CardDescription>
-              Add Supabase env vars to enable saving onboarding responses. The
-              route remains available in local mock mode.
+              Supabase env vars are missing:{" "}
+              {getMissingSupabaseEnvKeys().join(", ")}. The form remains usable
+              and will route to the dashboard without saving.
             </CardDescription>
           </CardHeader>
         </Card>
       ) : null}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Your speaking goals</CardTitle>
-          <CardDescription>
-            This can be refined later from settings and progress.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form action={saveOnboardingAction} className="flex flex-col gap-6">
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="nativeLanguage">
-                  Native language
-                </FieldLabel>
-                <Input
-                  id="nativeLanguage"
-                  name="nativeLanguage"
-                  placeholder="e.g. Spanish, Arabic, Mandarin"
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="currentLevel">
-                  Current English level
-                </FieldLabel>
-                <Input
-                  id="currentLevel"
-                  name="currentLevel"
-                  placeholder="e.g. intermediate, advanced"
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="primaryGoal">Primary UK goal</FieldLabel>
-                <Input
-                  id="primaryGoal"
-                  name="primaryGoal"
-                  placeholder="e.g. job interviews, meetings, phone calls"
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="profession">
-                  Profession or study area
-                </FieldLabel>
-                <Input
-                  id="profession"
-                  name="profession"
-                  placeholder="e.g. healthcare, public sector, university"
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="speakingConfidence">
-                  Speaking confidence, 1 to 5
-                </FieldLabel>
-                <Input
-                  id="speakingConfidence"
-                  max={5}
-                  min={1}
-                  name="speakingConfidence"
-                  type="number"
-                />
-                <FieldDescription>
-                  1 means cautious, 5 means confident in most situations.
-                </FieldDescription>
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="targetSituations">
-                  Target situations
-                </FieldLabel>
-                <Input
-                  id="targetSituations"
-                  name="targetSituations"
-                  placeholder="e.g. interviews"
-                />
-                <FieldDescription>
-                  Add one now. More detailed choices arrive in Phase 3.
-                </FieldDescription>
-              </Field>
-            </FieldGroup>
-            <Button className="w-fit" type="submit">
-              Save and continue
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 lg:grid-cols-[0.7fr_1.3fr]">
+        <aside className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>What this is for</CardTitle>
+              <CardDescription>
+                Your profile helps prioritise lessons such as British vowels,
+                sentence stress, interview answers, and phone-call clarity.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-sm leading-6 text-muted-foreground">
+              The goal is not to erase your accent. The coach focuses on
+              intelligibility, confidence, rhythm, and practical communication
+              in UK professional settings.
+            </CardContent>
+          </Card>
+          <PrivacyConsentNotice />
+        </aside>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Your goals</CardTitle>
+            <CardDescription>
+              You can adjust these later from settings as your practice changes.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <OnboardingForm mockMode={mockMode} />
+          </CardContent>
+        </Card>
+      </div>
     </section>
   );
 }

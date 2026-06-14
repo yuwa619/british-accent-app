@@ -1,19 +1,23 @@
-import { RoutePlaceholder } from "@/components/shell/route-placeholder";
+import { LessonCard } from "@/components/app/lesson-card";
+import { PageHeader } from "@/components/app/page-header";
+import { getLessons } from "@/lib/data/lessons";
 
-export default function LessonsPage() {
+export default async function LessonsPage() {
+  const lessons = await getLessons();
+
   return (
-    <RoutePlaceholder
-      title="Lessons"
-      description="Structured practice for British vowels, schwa, dental fricatives, non-rhoticity, stress, rhythm, and workplace phrases."
-      phase="Phase 3"
-      primaryHref="/lessons/clear-british-vowels"
-      primaryLabel="Open first lesson"
-      items={[
-        "Clear British vowels for professional speech",
-        "The schwa and unstressed syllables",
-        "Dental fricatives: think, this, that, through",
-        "Interview answers with clear structure and rhythm",
-      ]}
-    />
+    <section className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
+      <PageHeader
+        eyebrow="Lessons"
+        title="Practise the sounds and rhythm that carry UK workplace speech."
+        description="Start with foundations such as British vowels, schwa, dental fricatives, word stress, and sentence rhythm, then move towards interviews and everyday professional phrases."
+      />
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {lessons.map((lesson) => (
+          <LessonCard key={lesson.id} lesson={lesson} />
+        ))}
+      </div>
+    </section>
   );
 }
