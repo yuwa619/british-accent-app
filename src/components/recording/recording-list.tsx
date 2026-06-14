@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ClockIcon, Trash2Icon } from "lucide-react";
 
+import { AnalyseRecordingButton } from "@/components/recording/analyse-recording-button";
 import { AudioPlayer } from "@/components/recording/audio-player";
 import { DeleteRecordingDialog } from "@/components/recording/delete-recording-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +26,10 @@ type RecordingListProps = {
   emptyTitle?: string;
   emptyDescription?: string;
   onRecordingsChange?: (recordings: RecordingItem[]) => void;
+  expectedText?: string | null;
+  lessonId?: string | null;
+  promptId?: string | null;
+  showAnalyseAction?: boolean;
 };
 
 export function RecordingList({
@@ -32,6 +37,10 @@ export function RecordingList({
   emptyTitle = "No recordings saved yet",
   emptyDescription = "Record, preview, and save a clip to see it here.",
   onRecordingsChange,
+  expectedText,
+  lessonId,
+  promptId,
+  showAnalyseAction = true,
 }: RecordingListProps) {
   const [pendingDelete, setPendingDelete] = useState<RecordingItem | null>(
     null
@@ -129,9 +138,14 @@ export function RecordingList({
                 </div>
               )}
               <div className="flex flex-col gap-2 sm:flex-row">
-                <Button disabled variant="outline">
-                  Analyse feedback coming in Phase 5
-                </Button>
+                {showAnalyseAction ? (
+                  <AnalyseRecordingButton
+                    expectedText={expectedText}
+                    lessonId={lessonId ?? recording.lesson_id}
+                    promptId={promptId ?? recording.prompt_id}
+                    recordingId={recording.id}
+                  />
+                ) : null}
                 <Button
                   onClick={() => setPendingDelete(recording)}
                   type="button"

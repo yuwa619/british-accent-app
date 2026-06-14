@@ -60,6 +60,8 @@ Phase 3 polishes the core UI and onboarding experience: premium landing page, au
 
 Phase 4 adds browser audio recording with MediaRecorder, microphone permission handling, recording timer, preview playback, mock-mode saving, Supabase Storage upload, recordings metadata, individual recording deletion, recent recordings UI, and privacy messaging. Real speech analysis remains deferred to Phase 5.
 
+Phase 5 adds the speech analysis foundation: `POST /api/speech/analyse`, mock feedback by default, optional Azure Speech pronunciation assessment for `en-GB`, optional GPT-4o-mini coaching feedback, saved `speech_analysis_results`, recording status updates, dashboard feedback previews, and the polished `/feedback/[recordingId]` page.
+
 ## Recording Development Notes
 
 - Recording starts only after the user clicks `Record`.
@@ -67,4 +69,14 @@ Phase 4 adds browser audio recording with MediaRecorder, microphone permission h
 - Saved Supabase objects use the private `recordings` bucket with paths like `{user_id}/{recording_id}.webm`.
 - If Supabase env vars are blank, uploads return mock success and stay local to the current recording page state.
 - Users can preview before saving, discard and re-record, and delete saved recordings.
-- AI analysis, transcription, scoring, reference audio, and pitch feedback are not active yet.
+- Speech analysis is active in mock mode without provider keys. Set `ENABLE_REAL_AI=true` plus Azure/OpenAI keys to enable provider calls.
+- Real Azure analysis currently uses the short-audio REST path and is best suited to short clips. Keep practice recordings under 60 seconds when testing real provider mode.
+- Reference audio, roleplay audio responses, and pitch feedback remain future phases.
+
+## Speech Analysis Development Notes
+
+- Local development defaults to mock analysis unless `ENABLE_REAL_AI=true`.
+- Mock analysis does not call Azure or OpenAI and does not create provider cost.
+- `POST /api/speech/analyse` accepts a saved `recordingId` and optional expected text.
+- In Supabase mode, the route verifies ownership, prevents duplicate analysis unless forced, applies a simple 20-per-day user cap, updates `recordings.status`, and saves feedback into `speech_analysis_results`.
+- GPT feedback must focus on clarity, confidence, rhythm, and intelligibility. Do not frame feedback as accent erasure or native-sounding speech.

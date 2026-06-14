@@ -46,7 +46,7 @@ export default function DiagnosticPage() {
       <PageHeader
         eyebrow="Diagnostic"
         title="A short baseline for clarity, rhythm, and confidence."
-        description="Record the three diagnostic prompts now. Phase 5 will add analysis and baseline scoring; for this phase, recordings are saved only for practice and storage validation."
+        description="Record the three diagnostic prompts and analyse each clip for early coaching feedback. A combined baseline report arrives in Phase 6."
       />
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -74,7 +74,7 @@ export default function DiagnosticPage() {
       <div className="grid gap-6">
         {steps.map((step, index) => (
           <RecordingUploadCard
-            description={`${step.description} Diagnostic analysis arrives in Phase 5.`}
+            description={`${step.description} Analyse this recording now; the full combined diagnostic report arrives in Phase 6.`}
             key={`diagnostic-recorder-${step.title}`}
             practiceText={step.sample}
             recordingType="diagnostic"
@@ -86,7 +86,7 @@ export default function DiagnosticPage() {
       <div className="flex flex-col gap-3 rounded-lg border bg-background p-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">
           Diagnostic analysis, score trends, and personalised focus areas come
-          next in Phase 5.
+          together in Phase 6.
         </p>
         <Link
           className={cn(buttonVariants({ variant: "outline" }), "no-underline")}

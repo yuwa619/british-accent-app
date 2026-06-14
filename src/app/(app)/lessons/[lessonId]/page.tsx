@@ -88,7 +88,7 @@ export default async function LessonDetailPage({
             <CardTitle>Lesson steps</CardTitle>
             <CardDescription>
               Work through the explanation and read-aloud practice before
-              recording support arrives.
+              analysing a saved recording for focused coaching feedback.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -125,7 +125,7 @@ export default async function LessonDetailPage({
 
         <div className="flex flex-col gap-4">
           <RecordingUploadCard
-            description="Record yourself reading the practice prompt, listen back, and save it when you are happy with the attempt."
+            description="Record yourself reading the practice prompt, listen back, save it, then analyse the clip for coaching feedback."
             lessonId={lesson.id}
             practiceText={practiceText}
             promptId={firstPrompt?.id ?? null}

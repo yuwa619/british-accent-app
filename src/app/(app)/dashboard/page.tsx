@@ -28,6 +28,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getDashboardSummary } from "@/lib/data/dashboard";
+import { getRecentAnalysedRecordings } from "@/lib/data/analysis";
 import { getRecentRecordings } from "@/lib/data/recordings";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +37,7 @@ export default async function DashboardPage() {
     getDashboardSummary(),
     getRecentRecordings(4),
   ]);
+  const analysedRecordings = await getRecentAnalysedRecordings(2);
   const firstName =
     summary.profile?.full_name?.split(" ")[0] ??
     summary.profile?.email?.split("@")[0] ??
@@ -222,6 +224,59 @@ export default async function DashboardPage() {
             emptyTitle="No saved recordings yet"
             recordings={recentRecordings}
           />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <SparklesIcon className="size-5 text-primary" />
+          <CardTitle>Recent feedback</CardTitle>
+          <CardDescription>
+            Analysed recordings will appear here with quick links back to your
+            coaching notes.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-3 md:grid-cols-2">
+          {analysedRecordings.length ? (
+            analysedRecordings.map((item) => (
+              <Link
+                className="rounded-lg border bg-background p-4 hover:bg-muted/60"
+                href={`/feedback/${item.recording.id}`}
+                key={item.recording.id}
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="secondary">
+                    {item.feedback?.overall_score ?? 0}/100
+                  </Badge>
+                  <Badge variant="outline">
+                    {item.recording.recording_type}
+                  </Badge>
+                </div>
+                <p className="mt-3 font-medium">Open speech feedback</p>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  {item.feedback?.one_thing_to_improve ??
+                    "Review your next focus area."}
+                </p>
+              </Link>
+            ))
+          ) : (
+            <div className="rounded-lg border bg-background p-4 md:col-span-2">
+              <p className="font-medium">No feedback yet</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                Once you analyse a saved recording, the latest feedback will be
+                shown here.
+              </p>
+              <Link
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "mt-4 no-underline"
+                )}
+                href="/lessons"
+              >
+                Record a lesson
+              </Link>
+            </div>
+          )}
         </CardContent>
       </Card>
 

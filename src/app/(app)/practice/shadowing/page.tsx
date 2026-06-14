@@ -78,7 +78,7 @@ export default function ShadowingPage() {
         </Card>
 
         <RecordingUploadCard
-          description="Record your version after reading the reference text, then listen back before saving."
+          description="Record your version after reading the reference text, listen back, save it, then analyse the clip for coaching feedback."
           practiceText={referenceText}
           recordingType="shadowing"
           title="Your shadowing attempt"

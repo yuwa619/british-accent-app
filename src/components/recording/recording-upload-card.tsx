@@ -205,12 +205,16 @@ export function RecordingUploadCard({
           <div>
             <h3 className="font-medium">Saved recordings</h3>
             <p className="text-sm text-muted-foreground">
-              Feedback analysis is intentionally disabled until Phase 5.
+              Analyse a saved recording to see clarity, pronunciation, rhythm,
+              and next-step coaching feedback.
             </p>
           </div>
           <RecordingList
+            expectedText={practiceText}
+            lessonId={lessonId}
             recordings={savedRecordings}
             onRecordingsChange={setSavedRecordings}
+            promptId={promptId}
           />
         </div>
       </CardContent>

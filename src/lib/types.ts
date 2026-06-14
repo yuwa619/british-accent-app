@@ -4,7 +4,9 @@ import type {
   PracticePrompt,
   Profile,
   Recording,
+  SpeechAnalysisResult,
 } from "@/lib/supabase/database.types";
+import type { SpeechAnalysisFeedback } from "@/lib/ai/types";
 
 export type Lesson = SupabaseLesson & {
   status?: "not_started" | "in_progress" | "complete" | "coming_soon";
@@ -65,4 +67,10 @@ export type RecordingType = Recording["recording_type"];
 export type RecordingItem = Recording & {
   local_audio_url?: string;
   is_mock?: boolean;
+};
+
+export type RecordingWithAnalysis = {
+  recording: RecordingItem;
+  analysis: SpeechAnalysisResult | null;
+  feedback: SpeechAnalysisFeedback | null;
 };

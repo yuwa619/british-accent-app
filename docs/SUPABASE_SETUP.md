@@ -36,6 +36,8 @@ The initial migration is:
 
 ```bash
 supabase/migrations/001_initial_schema.sql
+supabase/migrations/002_onboarding_phase3_fields.sql
+supabase/migrations/003_speech_analysis_phase5_fields.sql
 ```
 
 It creates:
@@ -113,6 +115,30 @@ Phase 4 upload behaviour:
 - `GET /api/recordings` returns the signed-in user's latest recordings.
 - `DELETE /api/recordings/[recordingId]` verifies ownership, removes the Storage object, and deletes the metadata row.
 - If Supabase env vars are missing locally, the API returns mock success and does not persist audio.
+
+Phase 5 analysis behaviour:
+
+- `POST /api/speech/analyse` accepts JSON with `recordingId`, optional `expectedText`, optional `lessonId`, optional `promptId`, and optional `force`.
+- The route verifies the signed-in user owns the recording before reading Storage or writing feedback.
+- Existing feedback is reused unless `force=true`.
+- The route enforces a simple 20-analysis daily cap per user and a maximum clip length of two minutes.
+- Results are saved in `speech_analysis_results`; Phase 5 migration adds `confidence_note`, `provider`, `is_mock`, and a unique index on `recording_id`.
+- Missing AI provider env vars keep the app in mock mode and do not call external providers.
+
+Real AI provider variables:
+
+```bash
+ENABLE_REAL_AI=true
+AZURE_SPEECH_KEY=
+AZURE_SPEECH_REGION=
+OPENAI_API_KEY=
+```
+
+Provider notes:
+
+- Azure Speech is used for `en-GB` transcription and pronunciation assessment.
+- GPT-4o-mini converts raw scoring into British English coaching feedback focused on clarity and confidence.
+- Azure's short-audio REST path is best tested with short clips. Browser `webm` support may require later transcoding if real-mode provider tests reject the uploaded format.
 
 ## 7. RLS Model
 

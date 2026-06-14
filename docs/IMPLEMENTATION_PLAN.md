@@ -20,6 +20,7 @@ We are turning a 49-page PRD into a build-ready MVP plan. The product is a **UK 
 - **Phase 2 complete:** Supabase packages and SSR clients, auth middleware, email/password auth actions, onboarding persistence, MVP schema migration, RLS policies, private recordings bucket plan, seed data for the first 10 lessons, and Supabase setup documentation.
 - **Phase 3 complete:** Premium landing page, polished auth shell, multi-section onboarding form, Supabase/mock-aware dashboard data, lesson list/detail UI, polished diagnostic/shadowing/roleplay/progress/settings placeholders, privacy and terms copy, reusable UI components, and graceful mock-mode states.
 - **Phase 4 complete:** Browser MediaRecorder flow, microphone permission handling, timer, preview playback, mock-mode saving, Supabase Storage upload, `recordings` metadata, individual delete flow, recent recordings widgets, recording privacy notices, and recording UI on lesson, diagnostic, shadowing, dashboard, and settings pages.
+- **Phase 5 complete:** Speech analysis route, mock analysis mode, optional Azure Speech pronunciation assessment, optional GPT-4o-mini coaching, persisted `speech_analysis_results`, recording status lifecycle, analyse CTAs, dashboard feedback preview, and polished `/feedback/[recordingId]` page. Combined diagnostic baseline reporting remains Phase 6.
 
 ---
 
@@ -186,6 +187,10 @@ All tables have `id uuid pk default gen_random_uuid()`, `created_at timestamptz 
 [Browser] GET /api/recordings/:id/feedback -> render FeedbackScoreCard
 ```
 
+- **Phase 5 implementation:** The MVP route is `POST /api/speech/analyse`. It validates the saved recording, confirms ownership when Supabase is configured, enforces a two-minute maximum clip and a simple 20-per-day analysis cap, avoids duplicate analysis unless forced, sets `recordings.status='analysing'`, saves feedback to `speech_analysis_results`, then sets `recordings.status='complete'`.
+- **Mock mode:** If `ENABLE_REAL_AI` is not `"true"` or provider keys are missing, the route returns deterministic mock scores, transcript, word notes, sound notes, and next exercise. No Azure/OpenAI calls are made.
+- **Real provider mode:** With `ENABLE_REAL_AI=true`, `AZURE_SPEECH_KEY`, and `AZURE_SPEECH_REGION`, the route downloads the private recording and calls Azure Speech pronunciation assessment for `en-GB`. With `OPENAI_API_KEY`, GPT-4o-mini converts the raw result into strict JSON coaching feedback. If OpenAI fails after Azure succeeds, deterministic fallback coaching is generated from Azure scores.
+- **Known limitation:** The current real Azure adapter uses the short-audio REST endpoint, so provider testing should use short clips. Browser `webm` recordings may need transcoding for production reliability; that is a V1 hardening task unless real-mode testing requires it sooner.
 - **Diagnostic** runs this 3× (one per step) then aggregates into `diagnostic_results` (weighted: passage 40% / sentences 40% / spontaneous 20%) and seeds top-3 `focus_areas`.
 - **Latency:** Azure short-audio ~0.5–1s + GPT-4o-mini ~0.8–1.5s ⇒ realistic **~1.5–3s**. Run a "Processing your speech…" animation; optionally return Azure scores immediately and stream the LLM coach summary after. Do **not** promise <800ms on REST (PRD's <800ms target was for streaming roleplay; see §21).
 - **Fallback:** if Azure fails → retry once → fall back to transcript-only via OpenAI Whisper + a generic coach message ("We couldn't fully score this one — here's your transcript; try re-recording in a quieter spot"). If LLM fails → render raw scores with a templated (non-LLM) encouraging summary.

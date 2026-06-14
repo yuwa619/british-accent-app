@@ -67,6 +67,31 @@ export type Recording = {
   updated_at: string;
 };
 
+export type SpeechAnalysisResult = {
+  id: string;
+  recording_id: string;
+  user_id: string;
+  overall_score: number | null;
+  pronunciation_score: number | null;
+  rhythm_score: number | null;
+  intonation_score: number | null;
+  pace_score: number | null;
+  clarity_score: number | null;
+  word_feedback: Json;
+  sound_feedback: Json;
+  missed_words: Json;
+  suggested_correction: string | null;
+  ai_summary: string | null;
+  one_thing_done_well: string | null;
+  one_thing_to_improve: string | null;
+  next_exercise: string | null;
+  confidence_note: string | null;
+  provider: string;
+  is_mock: boolean;
+  raw_provider_response: Json | null;
+  created_at: string;
+};
+
 export type OnboardingResponse = {
   id: string;
   user_id: string;
@@ -217,6 +242,55 @@ export type Database = {
             columns: ["prompt_id"];
             isOneToOne: false;
             referencedRelation: "practice_prompts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      speech_analysis_results: {
+        Row: SpeechAnalysisResult;
+        Insert: {
+          id?: string;
+          recording_id: string;
+          user_id: string;
+          overall_score?: number | null;
+          pronunciation_score?: number | null;
+          rhythm_score?: number | null;
+          intonation_score?: number | null;
+          pace_score?: number | null;
+          clarity_score?: number | null;
+          word_feedback?: Json;
+          sound_feedback?: Json;
+          missed_words?: Json;
+          suggested_correction?: string | null;
+          ai_summary?: string | null;
+          one_thing_done_well?: string | null;
+          one_thing_to_improve?: string | null;
+          next_exercise?: string | null;
+          confidence_note?: string | null;
+          provider?: string;
+          is_mock?: boolean;
+          raw_provider_response?: Json | null;
+          created_at?: string;
+        };
+        Update: Partial<
+          Omit<
+            SpeechAnalysisResult,
+            "id" | "recording_id" | "user_id" | "created_at"
+          >
+        >;
+        Relationships: [
+          {
+            foreignKeyName: "speech_analysis_results_recording_id_fkey";
+            columns: ["recording_id"];
+            isOneToOne: false;
+            referencedRelation: "recordings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "speech_analysis_results_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
