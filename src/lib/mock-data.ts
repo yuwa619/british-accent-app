@@ -149,67 +149,243 @@ export const mockLessons: Lesson[] = [
   },
 ];
 
+const lessonPracticeContent: Record<
+  string,
+  {
+    explanation: string;
+    phrases: [string, string, string];
+    workplacePhrase: string;
+    shadowingPhrase: string;
+    reflectionTip: string;
+    nextLessonSlug: string | null;
+  }
+> = {
+  "clear-british-vowels": {
+    explanation:
+      "Keep the vowel shape clean and relaxed so key workplace words remain easy to follow.",
+    phrases: [
+      "Please check the plan and send it back by Friday.",
+      "The team needs a clear update before the meeting.",
+      "I can explain the change in a calm and simple way.",
+    ],
+    workplacePhrase: "I will send a clear summary after the call.",
+    shadowingPhrase:
+      "Please check the plan and send it back by Friday afternoon.",
+    reflectionTip:
+      "Notice whether the vowel in each stressed word feels open, steady, and easy to repeat.",
+    nextLessonSlug: "schwa-unstressed-syllables",
+  },
+  "schwa-unstressed-syllables": {
+    explanation:
+      "In British speech, many unstressed syllables become lighter. This creates smoother rhythm without rushing.",
+    phrases: [
+      "I need to apply for a series of positions.",
+      "Could you send the agenda before the meeting?",
+      "We can discuss the details at the end of the call.",
+    ],
+    workplacePhrase: "Could you send the agenda before the meeting?",
+    shadowingPhrase:
+      "I need to apply for a series of positions in the department.",
+    reflectionTip:
+      "Make the important words clear and let smaller words become lighter.",
+    nextLessonSlug: "dental-fricatives-think-this-that-through",
+  },
+  "dental-fricatives-think-this-that-through": {
+    explanation:
+      "Use light tongue placement for think, this, that, and through so the sound stays clear but not forced.",
+    phrases: [
+      "I think this method is better than that one.",
+      "Thank you for taking the time to go through this.",
+      "This Thursday works better than the third of the month.",
+    ],
+    workplacePhrase: "Thank you for taking the time to go through this.",
+    shadowingPhrase:
+      "I think this method is better than that one for the team.",
+    reflectionTip:
+      "Keep the tongue gentle and the airflow steady; avoid pressing too hard.",
+    nextLessonSlug: "dropping-final-r-non-rhotic",
+  },
+  "dropping-final-r-non-rhotic": {
+    explanation:
+      "Many British accents do not pronounce final /r/ unless the next word begins with a vowel.",
+    phrases: [
+      "The manager will share the report later.",
+      "Our customer care team can answer your question.",
+      "The offer is for a better role in another department.",
+    ],
+    workplacePhrase: "The manager will share the report later.",
+    shadowingPhrase:
+      "Our customer care team can answer your question after four.",
+    reflectionTip:
+      "Let final /r/ soften at the end of a word, but link gently before a vowel.",
+    nextLessonSlug: "word-stress-workplace-vocabulary",
+  },
+  "word-stress-workplace-vocabulary": {
+    explanation:
+      "Putting stress on the right syllable helps professional vocabulary sound clearer and more confident.",
+    phrases: [
+      "I have prepared an analysis of the proposal.",
+      "The project requires careful communication.",
+      "We should prioritise the most important action.",
+    ],
+    workplacePhrase: "I have prepared an analysis of the proposal.",
+    shadowingPhrase:
+      "The project requires careful communication with each department.",
+    reflectionTip:
+      "Tap once on the strongest syllable before you say the whole word.",
+    nextLessonSlug: "sentence-stress-confident-speaking",
+  },
+  "sentence-stress-confident-speaking": {
+    explanation:
+      "Sentence stress guides the listener towards the words that carry the message.",
+    phrases: [
+      "I can send the report today, but the figures need checking.",
+      "We need a short update before the client call.",
+      "The main issue is timing, not the quality of the work.",
+    ],
+    workplacePhrase:
+      "I can send the report today, but the figures need checking.",
+    shadowingPhrase: "The main issue is timing, not the quality of the work.",
+    reflectionTip:
+      "Choose two or three message words and make them slightly stronger.",
+    nextLessonSlug: "connected-speech-linking-smoothly",
+  },
+  "connected-speech-linking-smoothly": {
+    explanation:
+      "Connected speech helps words flow together while still keeping the message intelligible.",
+    phrases: [
+      "Could I have a quick update on it?",
+      "I will look at it after the meeting.",
+      "Let us talk about it in the afternoon.",
+    ],
+    workplacePhrase: "I will look at it after the meeting.",
+    shadowingPhrase:
+      "Could I have a quick update on it before the afternoon call?",
+    reflectionTip: "Link words gently; clarity matters more than speed.",
+    nextLessonSlug: "intonation-statements-questions",
+  },
+  "intonation-statements-questions": {
+    explanation:
+      "Pitch movement can make statements sound confident and questions sound open and polite.",
+    phrases: [
+      "I can help with that today.",
+      "Could you clarify the deadline for me?",
+      "Would Friday morning work for the interview?",
+    ],
+    workplacePhrase: "Could you clarify the deadline for me?",
+    shadowingPhrase:
+      "Would Friday morning work for the interview, or would Monday be better?",
+    reflectionTip:
+      "Let yes/no questions rise gently and keep statements steady at the end.",
+    nextLessonSlug: "professional-introductions-uk",
+  },
+  "professional-introductions-uk": {
+    explanation:
+      "A clear professional introduction gives listeners your name, role, and purpose without sounding rushed.",
+    phrases: [
+      "Hello, I am pleased to meet you.",
+      "I am joining the team as a project coordinator.",
+      "I am looking forward to working with everyone.",
+    ],
+    workplacePhrase: "I am joining the team as a project coordinator.",
+    shadowingPhrase:
+      "Hello, I am pleased to meet you. I am joining the team this week.",
+    reflectionTip:
+      "Pause briefly after your name and make your role easy to hear.",
+    nextLessonSlug: "interview-answers-structure-rhythm",
+  },
+  "interview-answers-structure-rhythm": {
+    explanation:
+      "A calm interview answer needs structure, clear stress, and a pace that gives listeners time to follow.",
+    phrases: [
+      "One example is when I helped improve a team process.",
+      "First, I listened to the problem and clarified the goal.",
+      "As a result, the team worked more efficiently.",
+    ],
+    workplacePhrase: "One example is when I helped improve a team process.",
+    shadowingPhrase:
+      "First, I listened to the problem, clarified the goal, and agreed the next step.",
+    reflectionTip: "Use a short pause between situation, action, and result.",
+    nextLessonSlug: null,
+  },
+};
+
 export const mockLessonDetails: LessonWithSteps[] = mockLessons.map(
-  (lesson) => ({
-    ...lesson,
-    steps: [
-      {
-        id: `${lesson.id}-step-1`,
-        lesson_id: lesson.id,
-        step_type: "explain",
-        title: "Understand the focus",
-        body: lesson.description,
-        practice_text: null,
-        reference_text: null,
-        sort_order: 1,
-        created_at: new Date(0).toISOString(),
-      },
-      {
-        id: `${lesson.id}-step-2`,
-        lesson_id: lesson.id,
-        step_type: "read",
-        title: "Read aloud",
-        body: "Read this phrase slowly first, then again at a natural workplace pace.",
-        practice_text:
-          lesson.slug === "schwa-unstressed-syllables"
-            ? "I need to apply for a series of positions."
-            : lesson.slug === "dental-fricatives-think-this-that-through"
-              ? "I think this method is better than that one."
-              : "Please check the plan and send it back by Friday.",
-        reference_text:
-          lesson.slug === "schwa-unstressed-syllables"
-            ? "I need to apply for a series of positions."
-            : lesson.slug === "dental-fricatives-think-this-that-through"
-              ? "I think this method is better than that one."
-              : "Please check the plan and send it back by Friday.",
-        sort_order: 2,
-        created_at: new Date(0).toISOString(),
-      },
-      {
-        id: `${lesson.id}-step-3`,
-        lesson_id: lesson.id,
-        step_type: "reflect",
-        title: "Reflect",
-        body: "Notice which words felt easiest and which would benefit from another listen-and-repeat round.",
-        practice_text: null,
-        reference_text: null,
-        sort_order: 3,
-        created_at: new Date(0).toISOString(),
-      },
-    ],
-    prompts: [
-      {
-        id: `${lesson.id}-prompt-1`,
-        lesson_id: lesson.id,
-        prompt_type: "shadowing",
-        title: "Practice phrase",
-        prompt_text: "Please check the plan and send it back by Friday.",
-        target_sound: lesson.skill_focus,
-        difficulty: lesson.difficulty,
-        created_at: new Date(0).toISOString(),
-      },
-    ],
-  })
+  (lesson) => {
+    const content = lessonPracticeContent[lesson.slug];
+
+    return {
+      ...lesson,
+      steps: [
+        {
+          id: `${lesson.id}-step-1`,
+          lesson_id: lesson.id,
+          step_type: "explain",
+          title: "Understand the focus",
+          body: content.explanation,
+          practice_text: null,
+          reference_text: null,
+          sort_order: 1,
+          created_at: new Date(0).toISOString(),
+        },
+        {
+          id: `${lesson.id}-step-2`,
+          lesson_id: lesson.id,
+          step_type: "listen",
+          title: "Listen for the pattern",
+          body: "Read the model phrase silently first, then listen or use text mode to notice stress, pace, and rhythm.",
+          practice_text: content.shadowingPhrase,
+          reference_text: content.shadowingPhrase,
+          sort_order: 2,
+          created_at: new Date(0).toISOString(),
+        },
+        {
+          id: `${lesson.id}-step-3`,
+          lesson_id: lesson.id,
+          step_type: "practice",
+          title: "Practise three phrases",
+          body: content.phrases.join("\n"),
+          practice_text: content.workplacePhrase,
+          reference_text: content.workplacePhrase,
+          sort_order: 3,
+          created_at: new Date(0).toISOString(),
+        },
+        {
+          id: `${lesson.id}-step-4`,
+          lesson_id: lesson.id,
+          step_type: "reflect",
+          title: "Reflection tip",
+          body: content.reflectionTip,
+          practice_text: null,
+          reference_text: null,
+          sort_order: 4,
+          created_at: new Date(0).toISOString(),
+        },
+      ],
+      prompts: [
+        {
+          id: `${lesson.id}-prompt-1`,
+          lesson_id: lesson.id,
+          prompt_type: "shadowing",
+          title: "Shadowing phrase",
+          prompt_text: content.shadowingPhrase,
+          target_sound: lesson.skill_focus,
+          difficulty: lesson.difficulty,
+          created_at: new Date(0).toISOString(),
+        },
+        {
+          id: `${lesson.id}-prompt-2`,
+          lesson_id: lesson.id,
+          prompt_type: "workplace_phrase",
+          title: "Workplace phrase",
+          prompt_text: content.workplacePhrase,
+          target_sound: lesson.skill_focus,
+          difficulty: lesson.difficulty,
+          created_at: new Date(0).toISOString(),
+        },
+      ],
+    };
+  }
 );
 
 export const mockFocusAreas: FocusArea[] = [

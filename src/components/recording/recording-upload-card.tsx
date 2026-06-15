@@ -41,6 +41,7 @@ export function RecordingUploadCard({
   redirectAnalysisToFeedback = true,
   onRecordingSaved,
   onAnalysisComplete,
+  onLocalAudioReady,
 }: {
   title: string;
   description: string;
@@ -55,6 +56,7 @@ export function RecordingUploadCard({
     recording: RecordingItem,
     analysis: SpeechAnalysisFeedback
   ) => void;
+  onLocalAudioReady?: (audioBlob: Blob, audioUrl: string | null) => void;
 }) {
   const recorder = useAudioRecorder();
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle");
@@ -116,6 +118,7 @@ export function RecordingUploadCard({
 
       setSavedRecordings((current) => [savedRecording, ...current]);
       onRecordingSaved?.(savedRecording);
+      onLocalAudioReady?.(recorder.audioBlob, recorder.audioUrl);
       setUploadStatus("uploaded");
       setUploadMessage(
         payload.mode === "mock"

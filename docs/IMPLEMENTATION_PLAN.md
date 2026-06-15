@@ -22,6 +22,7 @@ We are turning a 49-page PRD into a build-ready MVP plan. The product is a **UK 
 - **Phase 4 complete:** Browser MediaRecorder flow, microphone permission handling, timer, preview playback, mock-mode saving, Supabase Storage upload, `recordings` metadata, individual delete flow, recent recordings widgets, recording privacy notices, and recording UI on lesson, diagnostic, shadowing, dashboard, and settings pages.
 - **Phase 5 complete:** Speech analysis route, mock analysis mode, optional Azure Speech pronunciation assessment, optional GPT-4o-mini coaching, persisted `speech_analysis_results`, recording status lifecycle, analyse CTAs, dashboard feedback preview, and polished `/feedback/[recordingId]` page. Combined diagnostic baseline reporting remains Phase 6.
 - **Phase 6 complete:** Three-step diagnostic session, mock diagnostic simulation, diagnostic aggregation API, persisted baseline reports, generated focus areas, recommended lessons, 7-day practice plan, lesson progress updates, richer dashboard status, progress summary, and practice history.
+- **Phase 7 complete:** Guided lesson flow, richer 10-lesson mock curriculum, shadowing prompt selector, server-side reference audio endpoint with ElevenLabs feature flag and mock fallback, side-by-side reference/user comparison, post-recording energy and approximate pitch visuals, mini feedback summaries, and lesson completion controls.
 
 ---
 
@@ -194,6 +195,9 @@ All tables have `id uuid pk default gen_random_uuid()`, `created_at timestamptz 
 - **Known limitation:** The current real Azure adapter uses the short-audio REST endpoint, so provider testing should use short clips. Browser `webm` recordings may need transcoding for production reliability; that is a V1 hardening task unless real-mode testing requires it sooner.
 - **Phase 6 diagnostic aggregation:** Diagnostic runs this 3× (one per step) then `POST /api/diagnostic/aggregate` averages the three analysed recordings, saves `diagnostic_results`, derives up to three `focus_areas`, maps those focus areas to recommended lessons, and builds a 7-day practice plan. Mock mode can send client-held analysis objects so local QA does not need Supabase persistence.
 - **Progress tracking:** Lesson analysis auto-upserts `user_progress` as complete with the latest score. `/dashboard` and `/progress` read latest diagnostic results, active focus areas, analysed recordings, practice history, and lesson progress.
+- **Phase 7 lesson/shadowing flow:** `/lessons/[lessonId]` now guides users through Learn → Listen → Shadow → Record → Compare → Analyse → Complete. `/practice/shadowing` uses selectable workplace prompts, reference text/audio fallback, the Phase 4 recorder, the Phase 5 analysis CTA, and side-by-side playback.
+- **Reference audio:** `POST /api/reference-audio` is server-only and feature-flagged by `ENABLE_ELEVENLABS`. Without `ENABLE_ELEVENLABS=true`, `ELEVENLABS_API_KEY`, and `ELEVENLABS_VOICE_ID`, the route returns a text-mode mock fallback. With Supabase service role configured, generated MP3 references are cached in the private `recordings` bucket under `reference-audio/{hash}.mp3`.
+- **Pitch/intensity limitation:** Phase 7 uses browser Web Audio after recording to show an amplitude envelope and approximate pitch movement. It is guidance for noticing rhythm and energy, not a scientific pronunciation engine. Parselmouth/Praat and robust F0 extraction remain deferred to V1.
 - **Latency:** Azure short-audio ~0.5–1s + GPT-4o-mini ~0.8–1.5s ⇒ realistic **~1.5–3s**. Run a "Processing your speech…" animation; optionally return Azure scores immediately and stream the LLM coach summary after. Do **not** promise <800ms on REST (PRD's <800ms target was for streaming roleplay; see §21).
 - **Fallback:** if Azure fails → retry once → fall back to transcript-only via OpenAI Whisper + a generic coach message ("We couldn't fully score this one — here's your transcript; try re-recording in a quieter spot"). If LLM fails → render raw scores with a templated (non-LLM) encouraging summary.
 
@@ -467,7 +471,7 @@ Format: **Title** — description / acceptance / tech notes / priority / estimat
 ## 20. Deployment Plan
 
 - **Environments:** `local`, `preview` (Vercel PR), `production`. Separate Supabase projects for staging/prod.
-- **Env vars:** `NEXT_PUBLIC_SUPABASE_URL/ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `AZURE_SPEECH_KEY/REGION`, `OPENAI_API_KEY`, `ELEVENLABS_API_KEY`, `STRIPE_SECRET/WEBHOOK_SECRET`, `PAYMENTS_ENABLED`, `RESEND_API_KEY`, `SENTRY_DSN`, `POSTHOG_KEY`, `UPSTASH_REDIS_*`. Server-only keys never `NEXT_PUBLIC_`.
+- **Env vars:** `NEXT_PUBLIC_SUPABASE_URL/ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `AZURE_SPEECH_KEY/REGION`, `OPENAI_API_KEY`, `ENABLE_ELEVENLABS`, `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID`, `STRIPE_SECRET/WEBHOOK_SECRET`, `ENABLE_STRIPE_CHECKOUT`, `RESEND_API_KEY`, `SENTRY_DSN`, `POSTHOG_KEY`, `UPSTASH_REDIS_*`. Server-only keys never `NEXT_PUBLIC_`.
 - **Hosting:** Vercel (Next.js). Supabase (DB/Auth/Storage, EU region). Optional Upstash Redis for rate limits.
 - **CI/CD:** GitHub Actions — lint, typecheck, unit/integration, axe; Vercel auto-deploy on merge to `main`; preview per PR.
 - **DB migrations:** Supabase CLI migrations in repo; apply via CI on deploy.

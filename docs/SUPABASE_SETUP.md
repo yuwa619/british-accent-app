@@ -149,6 +149,14 @@ Phase 6 diagnostic/progress behaviour:
 - Migration 004 adds report metadata to `diagnostic_results`: `strengths`, `recommended_lessons`, `practice_plan`, and `recording_ids`. It also adds `focus_areas.related_lesson_slug`.
 - RLS remains user-owned: diagnostic reports, focus areas, progress rows, recordings, and analysis results are only readable/writable by the matching authenticated user.
 
+Phase 7 lesson/shadowing behaviour:
+
+- `POST /api/reference-audio` accepts JSON with `text`, optional `lessonId`, optional `promptId`, and optional `voiceStyle`.
+- The route returns a mock/text-mode fallback unless `ENABLE_ELEVENLABS=true`, `ELEVENLABS_API_KEY`, and `ELEVENLABS_VOICE_ID` are configured.
+- When ElevenLabs and the Supabase service role key are configured, generated MP3 references are cached in the private `recordings` bucket under `reference-audio/{hash}.mp3` and returned through signed URLs.
+- Reference audio requests enforce a 600-character text limit and require a signed-in user when Supabase is configured.
+- User recordings continue to use the existing per-user private paths. Reference audio is non-user voice content and is managed by the service role only.
+
 ## 7. RLS Model
 
 RLS is enabled on all user-owned tables. Policies follow this pattern:
