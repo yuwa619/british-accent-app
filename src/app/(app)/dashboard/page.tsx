@@ -17,6 +17,7 @@ import { PracticeHistoryTable } from "@/components/app/practice-history-table";
 import { PrivacyConsentNotice } from "@/components/app/privacy-consent-notice";
 import { ProgressCard } from "@/components/app/progress-card";
 import { SubscriptionBanner } from "@/components/app/subscription-banner";
+import { LessonProgressBadge } from "@/components/app/lesson-progress-badge";
 import { RecordingList } from "@/components/recording/recording-list";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -116,9 +117,13 @@ export default async function DashboardPage() {
 
         <ProgressCard
           title="Progress snapshot"
-          description="Baseline placeholder until diagnostic scoring is active."
-          value={28}
-          footer="Recording is available now. Phase 5 adds speech analysis."
+          description={
+            summary.baselineScore
+              ? `Baseline score: ${summary.baselineScore}/100`
+              : "Complete the diagnostic to set your baseline."
+          }
+          value={summary.baselineScore ?? 28}
+          footer={`${summary.analysedRecordingsCount} analysed recording${summary.analysedRecordingsCount === 1 ? "" : "s"} so far.`}
         />
       </div>
 
@@ -148,11 +153,32 @@ export default async function DashboardPage() {
           <CardHeader>
             <CardTitle>Continue learning</CardTitle>
             <CardDescription>
-              Start with pronunciation foundations before roleplay and shadowing
-              arrive.
+              Recommended from your focus areas and latest practice.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
+            {summary.recommendedLesson ? (
+              <div className="rounded-lg border bg-background p-4 md:col-span-2">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="font-medium">Recommended next practice</p>
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                      {summary.recommendedLesson.title}
+                    </p>
+                  </div>
+                  <LessonProgressBadge lesson={summary.recommendedLesson} />
+                </div>
+                <Link
+                  className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "mt-4 no-underline"
+                  )}
+                  href={`/lessons/${summary.recommendedLesson.slug}`}
+                >
+                  Open recommendation
+                </Link>
+              </div>
+            ) : null}
             {summary.lessons.slice(0, 2).map((lesson) => (
               <LessonCard key={lesson.id} lesson={lesson} />
             ))}

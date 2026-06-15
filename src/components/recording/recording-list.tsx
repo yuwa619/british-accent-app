@@ -19,6 +19,7 @@ import {
   formatRecordingDuration,
   getRecordingTypeLabel,
 } from "@/lib/recordings";
+import type { SpeechAnalysisFeedback } from "@/lib/ai/types";
 import type { RecordingItem } from "@/lib/types";
 
 type RecordingListProps = {
@@ -30,6 +31,11 @@ type RecordingListProps = {
   lessonId?: string | null;
   promptId?: string | null;
   showAnalyseAction?: boolean;
+  redirectToFeedback?: boolean;
+  onAnalysisComplete?: (
+    recording: RecordingItem,
+    analysis: SpeechAnalysisFeedback
+  ) => void;
 };
 
 export function RecordingList({
@@ -41,6 +47,8 @@ export function RecordingList({
   lessonId,
   promptId,
   showAnalyseAction = true,
+  redirectToFeedback = true,
+  onAnalysisComplete,
 }: RecordingListProps) {
   const [pendingDelete, setPendingDelete] = useState<RecordingItem | null>(
     null
@@ -142,8 +150,12 @@ export function RecordingList({
                   <AnalyseRecordingButton
                     expectedText={expectedText}
                     lessonId={lessonId ?? recording.lesson_id}
+                    onAnalysed={(analysis) =>
+                      onAnalysisComplete?.(recording, analysis)
+                    }
                     promptId={promptId ?? recording.prompt_id}
                     recordingId={recording.id}
+                    redirectToFeedback={redirectToFeedback}
                   />
                 ) : null}
                 <Button

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRightIcon, ClockIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { LessonProgressBadge } from "@/components/app/lesson-progress-badge";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
@@ -14,20 +15,13 @@ import {
 import type { Lesson } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-function formatStatus(status: Lesson["status"]) {
-  if (status === "in_progress") return "In progress";
-  if (status === "complete") return "Complete";
-  if (status === "coming_soon") return "Preview";
-  return "Not started";
-}
-
 export function LessonCard({ lesson }: { lesson: Lesson }) {
   return (
     <Card className="h-full">
       <CardHeader>
         <div className="flex items-start justify-between gap-3">
           <Badge variant="secondary">{lesson.difficulty}</Badge>
-          <Badge variant="outline">{formatStatus(lesson.status)}</Badge>
+          <LessonProgressBadge lesson={lesson} />
         </div>
         <CardTitle>{lesson.title}</CardTitle>
         <CardDescription>{lesson.description}</CardDescription>

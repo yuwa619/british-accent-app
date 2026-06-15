@@ -92,6 +92,49 @@ export type SpeechAnalysisResult = {
   created_at: string;
 };
 
+export type DiagnosticResult = {
+  id: string;
+  user_id: string;
+  overall_score: number | null;
+  pronunciation_score: number | null;
+  rhythm_score: number | null;
+  intonation_score: number | null;
+  pace_score: number | null;
+  clarity_score: number | null;
+  summary: string | null;
+  focus_areas: Json;
+  strengths: Json;
+  recommended_lessons: Json;
+  practice_plan: Json;
+  recording_ids: string[];
+  created_at: string;
+};
+
+export type FocusAreaRow = {
+  id: string;
+  user_id: string;
+  label: string;
+  category: string;
+  description: string | null;
+  priority: number;
+  source: string | null;
+  related_lesson_slug: string | null;
+  created_at: string;
+  resolved_at: string | null;
+};
+
+export type UserProgress = {
+  id: string;
+  user_id: string;
+  lesson_id: string | null;
+  status: "not_started" | "in_progress" | "complete";
+  completion_percent: number;
+  last_score: number | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type OnboardingResponse = {
   id: string;
   user_id: string;
@@ -288,6 +331,98 @@ export type Database = {
           },
           {
             foreignKeyName: "speech_analysis_results_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      diagnostic_results: {
+        Row: DiagnosticResult;
+        Insert: {
+          id?: string;
+          user_id: string;
+          overall_score?: number | null;
+          pronunciation_score?: number | null;
+          rhythm_score?: number | null;
+          intonation_score?: number | null;
+          pace_score?: number | null;
+          clarity_score?: number | null;
+          summary?: string | null;
+          focus_areas?: Json;
+          strengths?: Json;
+          recommended_lessons?: Json;
+          practice_plan?: Json;
+          recording_ids?: string[];
+          created_at?: string;
+        };
+        Update: Partial<
+          Omit<DiagnosticResult, "id" | "user_id" | "created_at">
+        >;
+        Relationships: [
+          {
+            foreignKeyName: "diagnostic_results_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      user_progress: {
+        Row: UserProgress;
+        Insert: {
+          id?: string;
+          user_id: string;
+          lesson_id?: string | null;
+          status?: UserProgress["status"];
+          completion_percent?: number;
+          last_score?: number | null;
+          completed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<
+          Omit<UserProgress, "id" | "user_id" | "created_at" | "updated_at">
+        > & {
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_progress_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "user_progress_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      focus_areas: {
+        Row: FocusAreaRow;
+        Insert: {
+          id?: string;
+          user_id: string;
+          label: string;
+          category: string;
+          description?: string | null;
+          priority?: number;
+          source?: string | null;
+          related_lesson_slug?: string | null;
+          created_at?: string;
+          resolved_at?: string | null;
+        };
+        Update: Partial<Omit<FocusAreaRow, "id" | "user_id" | "created_at">>;
+        Relationships: [
+          {
+            foreignKeyName: "focus_areas_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "profiles";

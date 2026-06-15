@@ -5,17 +5,22 @@ import { useState } from "react";
 import { SparklesIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import type { SpeechAnalysisFeedback } from "@/lib/ai/types";
 
 export function AnalyseRecordingButton({
   recordingId,
   expectedText,
   lessonId,
   promptId,
+  onAnalysed,
+  redirectToFeedback = true,
 }: {
   recordingId: string;
   expectedText?: string | null;
   lessonId?: string | null;
   promptId?: string | null;
+  onAnalysed?: (analysis: SpeechAnalysisFeedback) => void;
+  redirectToFeedback?: boolean;
 }) {
   const router = useRouter();
   const [isAnalysing, setIsAnalysing] = useState(false);
@@ -39,6 +44,7 @@ export function AnalyseRecordingButton({
         }),
       });
       const payload = (await response.json().catch(() => null)) as {
+        analysis?: SpeechAnalysisFeedback;
         error?: string;
       } | null;
 
@@ -48,7 +54,13 @@ export function AnalyseRecordingButton({
         );
       }
 
-      router.push(`/feedback/${recordingId}`);
+      if (payload?.analysis) {
+        onAnalysed?.(payload.analysis);
+      }
+
+      if (redirectToFeedback) {
+        router.push(`/feedback/${recordingId}`);
+      }
       router.refresh();
     } catch (caughtError) {
       setError(
@@ -65,7 +77,7 @@ export function AnalyseRecordingButton({
     <div className="flex flex-col gap-2">
       <Button disabled={isAnalysing} onClick={analyseRecording} type="button">
         <SparklesIcon data-icon="inline-start" />
-        {isAnalysing ? "Analysing..." : "Analyse my recording"}
+        {isAnalysing ? "Analysing..." : "Analyse recording"}
       </Button>
       {error ? (
         <p className="text-sm text-destructive" role="alert">

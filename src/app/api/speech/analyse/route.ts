@@ -308,6 +308,20 @@ export async function POST(request: Request) {
       throw new Error("Unable to update recording status.");
     }
 
+    if (recording.lesson_id && recording.recording_type === "lesson") {
+      await supabase.from("user_progress").upsert(
+        {
+          user_id: user.id,
+          lesson_id: recording.lesson_id,
+          status: "complete",
+          completion_percent: 100,
+          last_score: feedback.overall_score,
+          completed_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id,lesson_id" }
+      );
+    }
+
     return NextResponse.json({
       analysis: {
         ...feedback,

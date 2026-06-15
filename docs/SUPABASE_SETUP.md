@@ -38,6 +38,7 @@ The initial migration is:
 supabase/migrations/001_initial_schema.sql
 supabase/migrations/002_onboarding_phase3_fields.sql
 supabase/migrations/003_speech_analysis_phase5_fields.sql
+supabase/migrations/004_diagnostic_progress_phase6_fields.sql
 ```
 
 It creates:
@@ -139,6 +140,14 @@ Provider notes:
 - Azure Speech is used for `en-GB` transcription and pronunciation assessment.
 - GPT-4o-mini converts raw scoring into British English coaching feedback focused on clarity and confidence.
 - Azure's short-audio REST path is best tested with short clips. Browser `webm` support may require later transcoding if real-mode provider tests reject the uploaded format.
+
+Phase 6 diagnostic/progress behaviour:
+
+- `POST /api/diagnostic/aggregate` accepts three diagnostic `recordingIds`, verifies ownership, loads matching analysis rows, aggregates scores, inserts a `diagnostic_results` row, and seeds up to three active `focus_areas`.
+- `GET /api/diagnostic/latest` returns the latest baseline report for the signed-in user.
+- `POST /api/progress/lesson` updates `user_progress` for a lesson. The speech analysis route also auto-completes lesson progress when a lesson recording is analysed.
+- Migration 004 adds report metadata to `diagnostic_results`: `strengths`, `recommended_lessons`, `practice_plan`, and `recording_ids`. It also adds `focus_areas.related_lesson_slug`.
+- RLS remains user-owned: diagnostic reports, focus areas, progress rows, recordings, and analysis results are only readable/writable by the matching authenticated user.
 
 ## 7. RLS Model
 

@@ -62,6 +62,8 @@ Phase 4 adds browser audio recording with MediaRecorder, microphone permission h
 
 Phase 5 adds the speech analysis foundation: `POST /api/speech/analyse`, mock feedback by default, optional Azure Speech pronunciation assessment for `en-GB`, optional GPT-4o-mini coaching feedback, saved `speech_analysis_results`, recording status updates, dashboard feedback previews, and the polished `/feedback/[recordingId]` page.
 
+Phase 6 adds the diagnostic journey and progress layer: a 3-part diagnostic session, `POST /api/diagnostic/aggregate`, aggregated baseline report, generated focus areas, recommended lessons, 7-day practice plan, lesson progress updates, richer dashboard status, and a progress page with practice history.
+
 ## Recording Development Notes
 
 - Recording starts only after the user clicks `Record`.
@@ -80,3 +82,12 @@ Phase 5 adds the speech analysis foundation: `POST /api/speech/analyse`, mock fe
 - `POST /api/speech/analyse` accepts a saved `recordingId` and optional expected text.
 - In Supabase mode, the route verifies ownership, prevents duplicate analysis unless forced, applies a simple 20-per-day user cap, updates `recordings.status`, and saves feedback into `speech_analysis_results`.
 - GPT feedback must focus on clarity, confidence, rhythm, and intelligibility. Do not frame feedback as accent erasure or native-sounding speech.
+
+## Diagnostic and Progress Notes
+
+- `/diagnostic` now has three prompts: reading passage, British pronunciation sentences, and a spoken workplace prompt.
+- Each prompt uses the recording and analysis flow from Phases 4-5.
+- `POST /api/diagnostic/aggregate` averages the three analysis results, derives focus areas, recommends lessons, saves `diagnostic_results`, and seeds `focus_areas` when Supabase is configured.
+- Mock mode can simulate analysed diagnostic clips so local QA works without Supabase, Azure, or OpenAI keys.
+- Lesson recordings marked as analysed automatically update `user_progress` in Supabase mode.
+- `/progress` shows baseline scores, latest score, focus areas, practice history, and the generated 7-day practice plan.

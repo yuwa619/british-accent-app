@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeftIcon, HeadphonesIcon } from "lucide-react";
 
 import { EmptyState } from "@/components/app/empty-state";
+import { LessonProgressBadge } from "@/components/app/lesson-progress-badge";
 import { PageHeader } from "@/components/app/page-header";
 import { RecordingUploadCard } from "@/components/recording/recording-upload-card";
 import { Badge } from "@/components/ui/badge";
@@ -78,6 +79,7 @@ export default async function LessonDetailPage({
           <div className="flex flex-wrap gap-2">
             <Badge variant="secondary">{lesson.difficulty}</Badge>
             <Badge variant="outline">{lesson.estimated_minutes} minutes</Badge>
+            <LessonProgressBadge lesson={lesson} />
           </div>
         }
       />

@@ -25,6 +25,7 @@ import {
   maxRecordingBytes,
   maxRecordingSeconds,
 } from "@/lib/recordings";
+import type { SpeechAnalysisFeedback } from "@/lib/ai/types";
 import type { RecordingItem, RecordingType } from "@/lib/types";
 
 type UploadStatus = "idle" | "uploading" | "uploaded" | "failed";
@@ -37,6 +38,9 @@ export function RecordingUploadCard({
   promptId,
   practiceText,
   initialRecordings = [],
+  redirectAnalysisToFeedback = true,
+  onRecordingSaved,
+  onAnalysisComplete,
 }: {
   title: string;
   description: string;
@@ -45,6 +49,12 @@ export function RecordingUploadCard({
   promptId?: string | null;
   practiceText?: string | null;
   initialRecordings?: RecordingItem[];
+  redirectAnalysisToFeedback?: boolean;
+  onRecordingSaved?: (recording: RecordingItem) => void;
+  onAnalysisComplete?: (
+    recording: RecordingItem,
+    analysis: SpeechAnalysisFeedback
+  ) => void;
 }) {
   const recorder = useAudioRecorder();
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle");
@@ -105,6 +115,7 @@ export function RecordingUploadCard({
       };
 
       setSavedRecordings((current) => [savedRecording, ...current]);
+      onRecordingSaved?.(savedRecording);
       setUploadStatus("uploaded");
       setUploadMessage(
         payload.mode === "mock"
@@ -212,9 +223,11 @@ export function RecordingUploadCard({
           <RecordingList
             expectedText={practiceText}
             lessonId={lessonId}
+            onAnalysisComplete={onAnalysisComplete}
             recordings={savedRecordings}
             onRecordingsChange={setSavedRecordings}
             promptId={promptId}
+            redirectToFeedback={redirectAnalysisToFeedback}
           />
         </div>
       </CardContent>

@@ -314,11 +314,16 @@ export const mockRoleplayScenarios: RoleplayScenario[] = [
 export const mockDashboardSummary: DashboardSummary = {
   profile: null,
   onboardingComplete: false,
-  diagnosticComplete: false,
+  diagnosticComplete: true,
+  diagnosticStatus: "completed",
+  baselineScore: 78,
+  practiceCount: 3,
+  analysedRecordingsCount: 3,
   lessons: mockLessons.slice(0, 4),
   focusAreas: mockFocusAreas,
   metrics: mockProgressMetrics,
   recentPractice: mockPracticeHistory,
+  recommendedLesson: mockLessons[1],
   developerMessage:
     "Supabase is not configured, so this page is showing realistic mock data.",
 };
