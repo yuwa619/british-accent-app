@@ -19,6 +19,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { trackEvent } from "@/lib/analytics/client";
+import { analyticsEvents } from "@/lib/analytics/events";
 import type {
   RecordingItem,
   RoleplayFeedback,
@@ -88,6 +90,9 @@ export function RoleplayWorkspace({
         payload.session as RoleplaySession,
         ...current.filter((item) => item.id !== payload.session?.id),
       ]);
+      trackEvent(analyticsEvents.roleplayStarted, {
+        scenario_key: selectedScenario.key,
+      });
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
@@ -136,6 +141,10 @@ export function RoleplayWorkspace({
         payload.assistantMessage as RoleplayMessage,
       ]);
       setTextReply("");
+      trackEvent(analyticsEvents.roleplayTurnCompleted, {
+        scenario_key: selectedScenario.key,
+        input_type: input.recordingId ? "voice" : "text",
+      });
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
@@ -189,6 +198,9 @@ export function RoleplayWorkspace({
         payload.session as RoleplaySession,
         ...current.filter((item) => item.id !== payload.session?.id),
       ]);
+      trackEvent(analyticsEvents.roleplayCompleted, {
+        scenario_key: selectedScenario.key,
+      });
     } catch (caughtError) {
       setError(
         caughtError instanceof Error

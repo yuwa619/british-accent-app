@@ -25,6 +25,8 @@ import {
   maxRecordingBytes,
   maxRecordingSeconds,
 } from "@/lib/recordings";
+import { trackEvent } from "@/lib/analytics/client";
+import { analyticsEvents } from "@/lib/analytics/events";
 import type { SpeechAnalysisFeedback } from "@/lib/ai/types";
 import type { RecordingItem, RecordingType } from "@/lib/types";
 
@@ -125,6 +127,11 @@ export function RecordingUploadCard({
           ? "Mock upload complete. This recording is saved locally for this session only."
           : "Recording saved securely."
       );
+      trackEvent(analyticsEvents.recordingUploaded, {
+        recording_type: recordingType,
+        mode: payload.mode ?? "unknown",
+        duration_seconds: recorder.duration,
+      });
     } catch (error) {
       setUploadStatus("failed");
       setUploadMessage(

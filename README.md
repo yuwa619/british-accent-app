@@ -38,6 +38,8 @@ Copy `.env.example` to `.env.local` and fill in provider values as each phase ne
 ```bash
 ENABLE_REAL_AI=false
 ENABLE_STRIPE_CHECKOUT=false
+ENABLE_ANALYTICS=false
+ENABLE_SENTRY=false
 ```
 
 For Phase 2 Supabase setup, configure:
@@ -76,6 +78,8 @@ Phase 7 upgrades lessons and shadowing into guided practice flows: structured le
 
 Phase 8 adds turn-based AI roleplay practice: scenario selection, session creation, typed and recorded user turns, mock or GPT-4o-mini assistant replies, optional ElevenLabs assistant audio, saved roleplay sessions/messages, transcript UI, end-session feedback summaries, and dashboard/progress activity updates.
 
+Phase 9 hardens beta readiness: privacy/account settings, persisted voice data preferences, delete-all-recordings, data deletion requests, safe PostHog analytics helpers, safe Sentry error capture helpers, subscription-ready usage limits, and Stripe Checkout behind `ENABLE_STRIPE_CHECKOUT=false`.
+
 ## Recording Development Notes
 
 - Recording starts only after the user clicks `Record`.
@@ -83,6 +87,7 @@ Phase 8 adds turn-based AI roleplay practice: scenario selection, session creati
 - Saved Supabase objects use the private `recordings` bucket with paths like `{user_id}/{recording_id}.webm`.
 - If Supabase env vars are blank, uploads return mock success and stay local to the current recording page state.
 - Users can preview before saving, discard and re-record, and delete saved recordings.
+- Users can bulk-delete recordings from Settings. In Supabase mode, audio objects are removed before recording rows; analysis rows cascade from deleted recordings.
 - Speech analysis is active in mock mode without provider keys. Set `ENABLE_REAL_AI=true` plus Azure/OpenAI keys to enable provider calls.
 - Real Azure analysis currently uses the short-audio REST path and is best suited to short clips. Keep practice recordings under 60 seconds when testing real provider mode.
 - Reference audio uses text-mode fallback by default. Set `ENABLE_ELEVENLABS=true` with `ELEVENLABS_API_KEY` and `ELEVENLABS_VOICE_ID` to request generated reference audio server-side.
@@ -119,3 +124,12 @@ Phase 8 adds turn-based AI roleplay practice: scenario selection, session creati
 - Local mock mode works without Supabase, OpenAI, Azure, or ElevenLabs keys. Real assistant replies use GPT-4o-mini only when `ENABLE_REAL_AI=true` and `OPENAI_API_KEY` is set.
 - Assistant voice responses are optional and use ElevenLabs only when `ENABLE_ELEVENLABS=true`; otherwise roleplay remains text-based.
 - MVP sessions are capped at 10 user turns. Transcripts and linked recordings are user-owned and follow existing Supabase RLS policies when Supabase is configured.
+
+## Privacy, Analytics, and Billing Notes
+
+- `/settings` is the privacy/account control centre: profile summary, retention preference, AI processing consent, email reminders, recording deletion, data deletion request, and subscription readiness.
+- `POST /api/user-settings` saves voice-data preferences to `user_settings` when Supabase is configured and returns mock success otherwise.
+- `DELETE /api/recordings` deletes all current-user recordings. `POST /api/account/delete-data-request` creates a pending request in `data_deletion_requests` when Supabase is configured.
+- PostHog analytics are disabled unless `NEXT_PUBLIC_ENABLE_ANALYTICS=true` and `NEXT_PUBLIC_POSTHOG_KEY` are set. Do not track transcripts, raw roleplay messages, or voice data.
+- Sentry capture is disabled unless `ENABLE_SENTRY=true` and `SENTRY_DSN` are set. Monitoring helpers are no-op safe when missing.
+- Stripe Checkout is disabled unless `ENABLE_STRIPE_CHECKOUT=true`, `STRIPE_SECRET_KEY`, and `STRIPE_PRO_MONTHLY_PRICE_ID` are configured. Live charging is off by default.

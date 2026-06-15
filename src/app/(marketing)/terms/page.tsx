@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ScaleIcon } from "lucide-react";
+import { CreditCardIcon, ScaleIcon, ShieldAlertIcon } from "lucide-react";
 
 import { PageHeader } from "@/components/app/page-header";
 import { buttonVariants } from "@/components/ui/button";
@@ -14,29 +14,34 @@ import { cn } from "@/lib/utils";
 
 const sections = [
   {
-    title: "Beta learning product",
+    title: "Educational coaching purpose",
     description:
-      "This MVP is an educational coaching tool for pronunciation, rhythm, confidence, and UK professional communication. It is not a certification, employment guarantee, medical service, or legal advice.",
+      "The app supports pronunciation, rhythm, clarity, confidence, and UK professional communication practice. It does not provide certification, employment guarantees, immigration advice, medical advice, legal advice, or official workplace assessment.",
   },
   {
-    title: "Speech feedback",
+    title: "AI feedback limitations",
     description:
-      "Scores and suggestions are practice guidance. They may be incomplete or imperfect, and should be interpreted as prompts for reflection rather than judgements of identity or ability.",
+      "Transcripts, scores, coaching summaries, reference audio, and roleplay replies can be incomplete or inaccurate. Treat feedback as a prompt for practice and reflection, not as a judgement of identity or ability.",
   },
   {
-    title: "Responsible use",
+    title: "User responsibility",
     description:
-      "Use the app for your own learning and workplace preparation. Do not upload recordings you do not have permission to process.",
+      "Use the app for your own learning. Do not upload recordings without permission, impersonate others, submit sensitive third-party information, or use roleplay scenarios to create harmful, abusive, or misleading content.",
   },
   {
-    title: "Subscription-ready status",
+    title: "Voice data controls",
     description:
-      "The codebase includes subscription-ready architecture, but live charging remains disabled unless the relevant Stripe feature flag and environment variables are configured.",
+      "Recordings can be deleted individually or in bulk from Settings. Account-level data deletion is handled as a reviewed request in the MVP so irreversible actions can be completed carefully.",
   },
   {
-    title: "Data controls",
+    title: "Subscriptions",
     description:
-      "Privacy controls, recording deletion, and data deletion request flows will be expanded as audio storage and analysis are implemented.",
+      "Subscription tables, UI, usage limits, and a Stripe checkout route are present for readiness. Live charging remains disabled unless the Stripe feature flag and price environment variables are explicitly configured.",
+  },
+  {
+    title: "Beta status",
+    description:
+      "This is a beta MVP. Features, limits, pricing, provider integrations, and retention automation may change as the product is tested and hardened.",
   },
 ];
 
@@ -46,15 +51,16 @@ export default function TermsPage() {
       <PageHeader
         eyebrow="Terms"
         title="Plain-English beta terms."
-        description="These placeholder terms explain the current MVP boundaries while the product is still being built."
+        description="Use the product as coaching support for clearer, more confident communication, with realistic expectations about AI and beta software."
       />
 
       <Card>
         <CardHeader>
           <ScaleIcon className="size-5 text-primary" />
-          <CardTitle>Use this product as coaching support</CardTitle>
+          <CardTitle>Use this product as practice support</CardTitle>
           <CardDescription>
-            The app is here to support clearer, more confident communication.
+            These placeholder terms define the MVP boundaries before formal
+            legal review.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -71,6 +77,29 @@ export default function TermsPage() {
           ))}
         </CardContent>
       </Card>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <ShieldAlertIcon className="size-5 text-primary" />
+            <CardTitle>Acceptable use</CardTitle>
+            <CardDescription>
+              Keep roleplay and recording features focused on legitimate
+              communication practice.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CreditCardIcon className="size-5 text-primary" />
+            <CardTitle>Payments off by default</CardTitle>
+            <CardDescription>
+              Checkout is disabled unless explicitly enabled for a Stripe test
+              or launch environment.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <Link

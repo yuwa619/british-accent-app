@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { Mic2Icon, ShieldCheckIcon, Trash2Icon } from "lucide-react";
+import {
+  BarChart3Icon,
+  BrainCircuitIcon,
+  Mic2Icon,
+  ShieldCheckIcon,
+  Trash2Icon,
+} from "lucide-react";
 
 import { FeatureCard } from "@/components/app/feature-card";
 import { PageHeader } from "@/components/app/page-header";
@@ -13,93 +19,102 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
+const privacySections = [
+  {
+    title: "Voice recordings",
+    description:
+      "Recordings are used for practice playback, speech feedback, diagnostic baselines, shadowing comparisons, and roleplay turns. The app asks for microphone access only after you choose to record, and it does not upload audio until you choose to save.",
+  },
+  {
+    title: "AI processing",
+    description:
+      "When enabled, recordings may be processed by server-side speech and AI providers for transcription, pronunciation assessment, reference audio, coaching feedback, and roleplay replies. Provider keys stay server-side.",
+  },
+  {
+    title: "Retention and deletion",
+    description:
+      "The MVP default retention setting is 30 days. You can delete individual recordings, delete all recordings, or create a data deletion request from Settings. Full account deletion remains a reviewed request flow rather than an instant irreversible action.",
+  },
+  {
+    title: "Analytics",
+    description:
+      "Analytics are disabled unless configured. When enabled, the app tracks product events such as recording uploaded or lesson completed, not raw transcripts, roleplay message text, or voice data.",
+  },
+  {
+    title: "Scores and identity",
+    description:
+      "Speech scores are coaching guidance to help you notice patterns over time. They are not a judgement of nationality, ethnicity, identity, intelligence, or professional value.",
+  },
+];
+
 export default function PrivacyPage() {
   return (
     <section className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
       <PageHeader
         eyebrow="Privacy"
-        title="Voice practice needs clear consent and control."
-        description="This MVP is designed to explain what happens to recordings before upload, keep voice data private, and treat speech scores as coaching guidance."
+        title="Voice practice should feel transparent and controlled."
+        description="This MVP is built around consent, private recordings, clear AI processing notes, deletion controls, and feedback that supports clarity without erasing identity."
       />
 
       <div className="grid gap-4 md:grid-cols-3">
         <FeatureCard
           icon={Mic2Icon}
-          title="Recording consent"
-          description="The app will ask before using your microphone or uploading voice recordings."
-        />
-        <FeatureCard
-          icon={ShieldCheckIcon}
-          title="AI processing disclosure"
-          description="Future analysis may use speech-to-text, pronunciation scoring, and AI coach feedback."
+          title="Consent first"
+          description="Microphone access and uploads are user-initiated. Nothing records automatically."
         />
         <FeatureCard
           icon={Trash2Icon}
-          title="Retention controls"
-          description="The MVP plans a default 30-day recording retention policy with delete controls."
+          title="Delete controls"
+          description="Delete individual recordings, bulk-delete recordings, or request wider data deletion."
+        />
+        <FeatureCard
+          icon={ShieldCheckIcon}
+          title="Careful wording"
+          description="The app coaches clarity and confidence. It does not frame accent as something to erase."
         />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Voice recordings</CardTitle>
+          <BrainCircuitIcon className="size-5 text-primary" />
+          <CardTitle>What the app processes</CardTitle>
           <CardDescription>
-            Recording upload is available in the MVP. Analysis and feedback are
-            planned for Phase 5.
+            A plain-English view of the current MVP privacy model.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4 text-sm leading-7 text-muted-foreground">
-          <p>
-            Before any recording is uploaded, the app will explain why the
-            recording is needed, how it will be processed, and how long it will
-            be retained. The planned default retention period is 30 days unless
-            you delete recordings earlier or configure a different setting when
-            available.
-          </p>
-          <p>
-            Speech scores are intended as learning guidance. They are not a
-            judgement of your identity, background, ethnicity, nationality, or
-            value as a communicator.
-          </p>
+        <CardContent className="grid gap-4">
+          {privacySections.map((section) => (
+            <div
+              className="rounded-lg border bg-background p-4"
+              key={section.title}
+            >
+              <h2 className="font-medium">{section.title}</h2>
+              <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                {section.description}
+              </p>
+            </div>
+          ))}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>AI processing</CardTitle>
+          <BarChart3Icon className="size-5 text-primary" />
+          <CardTitle>Limitations</CardTitle>
           <CardDescription>
-            Provider integrations will stay server-side and feature-flagged
-            during MVP development.
+            Practical controls are implemented, but this is still an MVP.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 text-sm leading-7 text-muted-foreground">
           <p>
-            Future speech feedback may use Azure AI Speech for transcription and
-            pronunciation assessment, OpenAI for plain-English coaching
-            summaries, and ElevenLabs for British reference audio. API keys are
-            server-only and should never be exposed to the browser.
+            AI speech feedback can be imperfect, especially with background
+            noise, short clips, or provider limitations. Use it as practice
+            guidance rather than a formal assessment.
           </p>
           <p>
-            The product is positioned around clarity, intelligibility,
-            confidence, and natural British speech rhythm. It is not designed to
-            erase accents or pressure users to hide where they are from.
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Delete recordings and data</CardTitle>
-          <CardDescription>
-            The full automation arrives after storage is connected.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 text-sm leading-7 text-muted-foreground">
-          <p>
-            The settings page includes placeholders for deleting individual
-            recordings and requesting full data deletion. Once storage is live,
-            users should be able to remove their own recordings and related
-            records.
+            Automated retention purging, self-serve data export, and full
+            account deletion automation are launch-readiness tasks. The current
+            data deletion request flow records a pending request for review.
           </p>
           <Link
             className={cn(
@@ -108,7 +123,7 @@ export default function PrivacyPage() {
             )}
             href="/settings"
           >
-            View settings
+            Manage privacy settings
           </Link>
         </CardContent>
       </Card>

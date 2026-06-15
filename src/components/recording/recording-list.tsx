@@ -19,6 +19,8 @@ import {
   formatRecordingDuration,
   getRecordingTypeLabel,
 } from "@/lib/recordings";
+import { trackEvent } from "@/lib/analytics/client";
+import { analyticsEvents } from "@/lib/analytics/events";
 import type { SpeechAnalysisFeedback } from "@/lib/ai/types";
 import type { RecordingItem } from "@/lib/types";
 
@@ -78,6 +80,10 @@ export function RecordingList({
       onRecordingsChange?.(nextRecordings);
       setPendingDelete(null);
       setMessage("Recording deleted.");
+      trackEvent(analyticsEvents.recordingDeleted, {
+        recording_type: recording.recording_type,
+        status: recording.status,
+      });
     } catch (error) {
       setMessage(
         error instanceof Error

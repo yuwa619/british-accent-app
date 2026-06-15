@@ -6,6 +6,7 @@ import {
   isAllowedRecordingType,
   maxRecordingBytes,
 } from "@/lib/recordings";
+import { captureServerError } from "@/lib/monitoring/sentry";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
@@ -157,4 +158,87 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ recording, mode: "supabase" }, { status: 201 });
+}
+
+export async function DELETE() {
+  try {
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json({
+        success: true,
+        deletedCount: 0,
+        mode: "mock",
+        message:
+          "Mock recordings cleared for this session. No stored voice data was deleted.",
+      });
+    }
+
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Sign in to delete recordings." },
+        { status: 401 }
+      );
+    }
+
+    const { data: recordings, error: loadError } = await supabase
+      .from("recordings")
+      .select("id, storage_path")
+      .eq("user_id", user.id);
+
+    if (loadError) {
+      return NextResponse.json(
+        { error: "Unable to load recordings for deletion." },
+        { status: 500 }
+      );
+    }
+
+    const storagePaths =
+      recordings
+        ?.map((recording) => recording.storage_path)
+        .filter((path): path is string => Boolean(path)) ?? [];
+
+    if (storagePaths.length) {
+      const { error: storageError } = await supabase.storage
+        .from("recordings")
+        .remove(storagePaths);
+
+      if (storageError) {
+        return NextResponse.json(
+          { error: "Unable to delete all stored audio files." },
+          { status: 500 }
+        );
+      }
+    }
+
+    const { error: deleteError } = await supabase
+      .from("recordings")
+      .delete()
+      .eq("user_id", user.id);
+
+    if (deleteError) {
+      return NextResponse.json(
+        { error: "Unable to delete recording metadata." },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      deletedCount: recordings?.length ?? 0,
+      mode: "supabase",
+    });
+  } catch (error) {
+    await captureServerError(error, {
+      route: "/api/recordings",
+      method: "DELETE",
+    });
+    return NextResponse.json(
+      { error: "Unable to delete recordings right now." },
+      { status: 500 }
+    );
+  }
 }

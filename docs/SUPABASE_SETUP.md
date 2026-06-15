@@ -39,12 +39,14 @@ supabase/migrations/001_initial_schema.sql
 supabase/migrations/002_onboarding_phase3_fields.sql
 supabase/migrations/003_speech_analysis_phase5_fields.sql
 supabase/migrations/004_diagnostic_progress_phase6_fields.sql
+supabase/migrations/005_data_deletion_requests.sql
 ```
 
 It creates:
 
 - Auth-linked `profiles`
 - Onboarding, lesson, recording, feedback, diagnostic, progress, focus area, roleplay, subscription, and settings tables
+- `data_deletion_requests` for reviewed account-level deletion requests
 - `updated_at` trigger function
 - Profile/settings/subscription creation trigger after Supabase Auth sign-up
 - RLS policies for user-owned data
@@ -166,6 +168,14 @@ Phase 8 roleplay behaviour:
 - The existing RLS policies keep roleplay sessions and transcripts user-owned. Linked voice recordings remain deletable through the recordings flow.
 - If ElevenLabs is enabled for assistant audio, generated MP3s are stored in the private `recordings` bucket under `roleplay-audio/{sessionId}/{messageId}.mp3` and returned via signed URL.
 - Mock mode uses an in-memory session store and does not persist transcripts after the dev server restarts.
+
+Phase 9 privacy/settings behaviour:
+
+- `POST /api/user-settings` upserts `user_settings` for retention days, AI processing consent, and email reminders.
+- `DELETE /api/recordings` bulk-deletes the signed-in user's audio objects from the private `recordings` bucket, then deletes matching `recordings` rows. Related speech analysis rows cascade through existing foreign keys.
+- `POST /api/account/delete-data-request` inserts a pending `data_deletion_requests` row. This is a reviewed MVP flow, not immediate irreversible account deletion.
+- `data_deletion_requests` RLS lets authenticated users insert and read only their own requests. Service role/admin workflows can manage completion outside the user app.
+- Subscription data remains in the existing `subscriptions` table. Stripe checkout is feature-flagged and does not write live subscription state until webhook handling is added.
 
 ## 7. RLS Model
 

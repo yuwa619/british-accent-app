@@ -5,6 +5,8 @@ import { useState } from "react";
 import { SparklesIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { trackEvent } from "@/lib/analytics/client";
+import { analyticsEvents } from "@/lib/analytics/events";
 import type { SpeechAnalysisFeedback } from "@/lib/ai/types";
 
 export function AnalyseRecordingButton({
@@ -29,6 +31,9 @@ export function AnalyseRecordingButton({
   async function analyseRecording() {
     setIsAnalysing(true);
     setError(null);
+    trackEvent(analyticsEvents.speechAnalysisStarted, {
+      recording_id: recordingId,
+    });
 
     try {
       const response = await fetch("/api/speech/analyse", {
@@ -56,6 +61,11 @@ export function AnalyseRecordingButton({
 
       if (payload?.analysis) {
         onAnalysed?.(payload.analysis);
+        trackEvent(analyticsEvents.speechAnalysisCompleted, {
+          recording_id: recordingId,
+          provider: payload.analysis.provider,
+          is_mock: payload.analysis.is_mock,
+        });
       }
 
       if (redirectToFeedback) {

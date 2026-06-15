@@ -24,6 +24,7 @@ We are turning a 49-page PRD into a build-ready MVP plan. The product is a **UK 
 - **Phase 6 complete:** Three-step diagnostic session, mock diagnostic simulation, diagnostic aggregation API, persisted baseline reports, generated focus areas, recommended lessons, 7-day practice plan, lesson progress updates, richer dashboard status, progress summary, and practice history.
 - **Phase 7 complete:** Guided lesson flow, richer 10-lesson mock curriculum, shadowing prompt selector, server-side reference audio endpoint with ElevenLabs feature flag and mock fallback, side-by-side reference/user comparison, post-recording energy and approximate pitch visuals, mini feedback summaries, and lesson completion controls.
 - **Phase 8 complete:** Turn-based roleplay workspace, five UK workplace/interview scenarios, roleplay session/message API routes, typed and recorded user turns, mock or GPT-4o-mini assistant replies, optional ElevenLabs assistant audio, transcript UI, end-session feedback summaries, recent sessions, and dashboard/progress activity updates.
+- **Phase 9 complete:** Privacy/account control centre, persisted voice-data settings, delete-all-recordings endpoint, data deletion request table/API, PostHog analytics helper, Sentry capture helper, Stripe checkout route behind a disabled feature flag, subscription-ready usage limits, and updated privacy/terms copy.
 
 ---
 
@@ -147,6 +148,8 @@ All tables have `id uuid pk default gen_random_uuid()`, `created_at timestamptz 
 
 **user_settings** — `id`, `user_id` fk (1:1), `tts_voice` text default `'british_female'`, `tts_pace` numeric default 1.0, `tts_volume` numeric default 1.0, `recording_consent` bool default false, `consent_at` timestamptz, `marketing_opt_in` bool default false, `reduced_motion` bool default false. Index `user_id`.
 
+**data_deletion_requests** — `id`, `user_id` fk nullable, `email`, `request_type` text default `delete_all_data`, `status` text default `pending`, `notes`, `created_at`, `completed_at`. RLS lets users insert/read their own requests. This supports a reviewed MVP deletion process rather than instant account removal.
+
 **usage_counters** (for tier limits) — `id`, `user_id`, `period_date` date, `drills_used` int, `roleplay_turns_used` int. Unique(`user_id`,`period_date`).
 
 **analytics_events** (optional server mirror; PostHog is primary) — `id`, `user_id`, `event` text, `properties` jsonb.
@@ -201,7 +204,9 @@ All tables have `id uuid pk default gen_random_uuid()`, `created_at timestamptz 
 - **Pitch/intensity limitation:** Phase 7 uses browser Web Audio after recording to show an amplitude envelope and approximate pitch movement. It is guidance for noticing rhythm and energy, not a scientific pronunciation engine. Parselmouth/Praat and robust F0 extraction remain deferred to V1.
 - **Phase 8 roleplay flow:** `/practice/roleplay` is request/response based: scenario selection → `POST /api/roleplay/start` → typed or recorded user turn → `POST /api/roleplay/turn` → assistant response → repeat up to 10 user turns → `POST /api/roleplay/end` for a feedback summary. No realtime streaming, avatar, or WebSocket voice loop is included in MVP.
 - **Roleplay mock/real mode:** Without Supabase or AI keys, roleplay uses an in-memory mock session store and deterministic scenario-aware replies. With Supabase configured, sessions/messages are saved to `roleplay_sessions` and `roleplay_messages` under existing user-owned RLS. With `ENABLE_REAL_AI=true` and `OPENAI_API_KEY`, assistant replies and end summaries use GPT-4o-mini. With `ENABLE_ELEVENLABS=true`, assistant reply audio is generated server-side and stored under `roleplay-audio/{sessionId}/{messageId}.mp3` when Supabase service role is available.
-- **Phase 9 handoff:** Privacy/settings/analytics work should add explicit transcript retention messaging, roleplay events, Sentry breadcrumbs for failed roleplay turns, and subscription-ready limits/paywall copy without enabling live charging.
+- **Phase 9 privacy/settings:** `/settings` now persists retention days, AI processing consent, and email reminders; shows recent recordings; bulk-deletes recordings through `DELETE /api/recordings`; and creates reviewed data deletion requests through `POST /api/account/delete-data-request`.
+- **Phase 9 analytics/monitoring/billing:** PostHog product analytics are disabled unless `NEXT_PUBLIC_ENABLE_ANALYTICS=true` and a public key are present; Sentry capture is disabled unless `ENABLE_SENTRY=true` and `SENTRY_DSN` are set; Stripe Checkout remains behind `ENABLE_STRIPE_CHECKOUT=false` and price-id env vars. No raw transcripts, roleplay text, or audio is sent to analytics.
+- **Phase 10 handoff:** Add broader automated tests, accessibility checks, provider-key integration QA, retention purge automation, webhook handling when payments are enabled, and final launch checklist verification.
 - **Latency:** Azure short-audio ~0.5–1s + GPT-4o-mini ~0.8–1.5s ⇒ realistic **~1.5–3s**. Run a "Processing your speech…" animation; optionally return Azure scores immediately and stream the LLM coach summary after. Do **not** promise <800ms on REST (PRD's <800ms target was for streaming roleplay; see §21).
 - **Fallback:** if Azure fails → retry once → fall back to transcript-only via OpenAI Whisper + a generic coach message ("We couldn't fully score this one — here's your transcript; try re-recording in a quieter spot"). If LLM fails → render raw scores with a templated (non-LLM) encouraging summary.
 

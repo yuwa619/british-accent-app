@@ -8,6 +8,7 @@ import {
 
 import { AnalysisErrorState } from "@/components/feedback/analysis-error-state";
 import { FeedbackScoreCard } from "@/components/feedback/feedback-score-card";
+import { FeedbackRecordingControls } from "@/components/feedback/feedback-recording-controls";
 import { FeedbackSummary } from "@/components/feedback/feedback-summary";
 import { NextExerciseCard } from "@/components/feedback/next-exercise-card";
 import { SoundFeedbackList } from "@/components/feedback/sound-feedback-list";
@@ -121,6 +122,10 @@ export default async function FeedbackPage({
           </CardHeader>
           <CardContent className="space-y-4 text-sm leading-6 text-muted-foreground">
             <p>{feedback.confidence_note}</p>
+            <FeedbackRecordingControls
+              recordingId={recording.id}
+              recordingType={recording.recording_type}
+            />
             {feedback.missed_words.length ? (
               <div>
                 <p className="font-medium text-foreground">Missed words</p>

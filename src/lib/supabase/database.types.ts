@@ -181,6 +181,17 @@ export type UserSettings = {
   updated_at: string;
 };
 
+export type DataDeletionRequest = {
+  id: string;
+  user_id: string | null;
+  email: string | null;
+  request_type: "delete_all_data" | "delete_recordings" | "delete_account";
+  status: "pending" | "reviewing" | "complete" | "cancelled";
+  notes: string | null;
+  created_at: string;
+  completed_at: string | null;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -530,6 +541,31 @@ export type Database = {
             foreignKeyName: "user_settings_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      data_deletion_requests: {
+        Row: DataDeletionRequest;
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          email?: string | null;
+          request_type?: DataDeletionRequest["request_type"];
+          status?: DataDeletionRequest["status"];
+          notes?: string | null;
+          created_at?: string;
+          completed_at?: string | null;
+        };
+        Update: Partial<
+          Omit<DataDeletionRequest, "id" | "user_id" | "created_at">
+        >;
+        Relationships: [
+          {
+            foreignKeyName: "data_deletion_requests_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
           },

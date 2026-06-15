@@ -342,8 +342,9 @@ export default async function DashboardPage() {
         <div className="flex items-center gap-3 rounded-lg border bg-background p-4 text-sm text-muted-foreground">
           <ShieldCheckIcon className="size-5 text-primary" />
           <p>
-            Future recordings will use private storage, 30-day retention
-            controls, and delete options from settings.
+            Voice data controls are available in Settings, including 30-day
+            retention preferences, individual deletion, bulk recording deletion,
+            and data deletion requests.
           </p>
         </div>
       </div>
