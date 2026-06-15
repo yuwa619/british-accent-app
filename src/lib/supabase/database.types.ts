@@ -123,6 +123,28 @@ export type FocusAreaRow = {
   resolved_at: string | null;
 };
 
+export type RoleplaySession = {
+  id: string;
+  user_id: string;
+  scenario_key: string;
+  title: string;
+  status: "active" | "complete" | "abandoned";
+  summary: string | null;
+  created_at: string;
+  ended_at: string | null;
+};
+
+export type RoleplayMessage = {
+  id: string;
+  session_id: string;
+  user_id: string;
+  sender: "user" | "assistant" | "system";
+  message_text: string | null;
+  recording_id: string | null;
+  audio_storage_path: string | null;
+  created_at: string;
+};
+
 export type UserProgress = {
   id: string;
   user_id: string;
@@ -426,6 +448,68 @@ export type Database = {
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      roleplay_sessions: {
+        Row: RoleplaySession;
+        Insert: {
+          id?: string;
+          user_id: string;
+          scenario_key: string;
+          title: string;
+          status?: RoleplaySession["status"];
+          summary?: string | null;
+          created_at?: string;
+          ended_at?: string | null;
+        };
+        Update: Partial<Omit<RoleplaySession, "id" | "user_id" | "created_at">>;
+        Relationships: [
+          {
+            foreignKeyName: "roleplay_sessions_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      roleplay_messages: {
+        Row: RoleplayMessage;
+        Insert: {
+          id?: string;
+          session_id: string;
+          user_id: string;
+          sender: RoleplayMessage["sender"];
+          message_text?: string | null;
+          recording_id?: string | null;
+          audio_storage_path?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<
+          Omit<RoleplayMessage, "id" | "session_id" | "user_id" | "created_at">
+        >;
+        Relationships: [
+          {
+            foreignKeyName: "roleplay_messages_session_id_fkey";
+            columns: ["session_id"];
+            isOneToOne: false;
+            referencedRelation: "roleplay_sessions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "roleplay_messages_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "roleplay_messages_recording_id_fkey";
+            columns: ["recording_id"];
+            isOneToOne: false;
+            referencedRelation: "recordings";
             referencedColumns: ["id"];
           },
         ];

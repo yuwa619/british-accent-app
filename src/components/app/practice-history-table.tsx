@@ -19,10 +19,10 @@ export function PracticeHistoryTable({
         <span>Score</span>
         <span>Status</span>
       </div>
-      {rows.map((row) => (
+      {rows.map((row, index) => (
         <div
           className="grid grid-cols-1 gap-2 border-b px-4 py-3 text-sm last:border-b-0 sm:grid-cols-[1.4fr_0.8fr_0.7fr_0.7fr_0.8fr] sm:items-center"
-          key={`${row.title}-${row.date}`}
+          key={`${row.title}-${row.date}-${row.status}-${index}`}
         >
           <span className="font-medium">
             {row.feedbackHref ? (

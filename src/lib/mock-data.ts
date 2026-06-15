@@ -7,6 +7,7 @@ import type {
   ProgressMetric,
   RoleplayScenario,
 } from "@/lib/types";
+import { roleplayScenarios } from "@/lib/roleplay/scenarios";
 
 export const mockLessons: Lesson[] = [
   {
@@ -449,43 +450,7 @@ export const mockPracticeHistory: PracticeHistoryItem[] = [
   },
 ];
 
-export const mockRoleplayScenarios: RoleplayScenario[] = [
-  {
-    key: "uk-job-interview",
-    title: "UK job interview",
-    description: "Practise calm answers with a recruiter persona.",
-    context: "Interview",
-    turns: 8,
-  },
-  {
-    key: "introducing-yourself-at-work",
-    title: "Introducing yourself at work",
-    description: "Build a clear first-day introduction.",
-    context: "Workplace",
-    turns: 6,
-  },
-  {
-    key: "asking-for-clarification",
-    title: "Asking for clarification",
-    description: "Practise polite repair phrases in meetings.",
-    context: "Meeting",
-    turns: 6,
-  },
-  {
-    key: "customer-service",
-    title: "Customer-facing conversation",
-    description: "Keep speech calm and clear in service situations.",
-    context: "Service",
-    turns: 8,
-  },
-  {
-    key: "professional-phone-call",
-    title: "Professional phone call",
-    description: "Practise pacing and clarity when there are no visual cues.",
-    context: "Phone",
-    turns: 6,
-  },
-];
+export const mockRoleplayScenarios: RoleplayScenario[] = roleplayScenarios;
 
 export const mockDashboardSummary: DashboardSummary = {
   profile: null,

@@ -4,6 +4,8 @@ import type {
   PracticePrompt,
   Profile,
   Recording,
+  RoleplayMessage as SupabaseRoleplayMessage,
+  RoleplaySession as SupabaseRoleplaySession,
   SpeechAnalysisResult,
 } from "@/lib/supabase/database.types";
 import type { SpeechAnalysisFeedback } from "@/lib/ai/types";
@@ -47,8 +49,48 @@ export type RoleplayScenario = {
   key: string;
   title: string;
   description: string;
-  context: string;
+  user_goal: string;
+  ai_role: string;
+  difficulty: string;
+  suggested_opening_prompt: string;
+  focus_skills: string[];
+  example_phrases: string[];
+  success_criteria: string[];
+  context?: string;
   turns: number;
+};
+
+export type RoleplaySession = SupabaseRoleplaySession & {
+  is_mock?: boolean;
+};
+
+export type RoleplayMessage = SupabaseRoleplayMessage & {
+  audio_url?: string | null;
+  is_mock?: boolean;
+};
+
+export type RoleplayFeedback = {
+  overall_summary: string;
+  clarity_score: number;
+  confidence_score: number;
+  structure_score: number;
+  pronunciation_rhythm_observation: string;
+  what_went_well: string;
+  one_thing_to_improve: string;
+  suggested_phrases: string[];
+  recommended_next_lesson: {
+    title: string;
+    slug: string;
+  };
+  recommended_next_roleplay: string;
+  encouragement: string;
+  is_mock?: boolean;
+};
+
+export type RoleplaySessionBundle = {
+  session: RoleplaySession;
+  messages: RoleplayMessage[];
+  feedback?: RoleplayFeedback | null;
 };
 
 export type DashboardSummary = {

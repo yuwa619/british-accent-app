@@ -4,6 +4,10 @@ import {
   getLatestDiagnosticReport,
   getMockDiagnosticReport,
 } from "@/lib/data/diagnostic";
+import {
+  getRecentRoleplaySessions,
+  roleplaySessionsToPracticeHistory,
+} from "@/lib/data/roleplay";
 import { mockFocusAreas, mockProgressMetrics } from "@/lib/mock-data";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
@@ -63,6 +67,9 @@ function buildMetrics({
 export const getProgressSummary = cache(async (): Promise<ProgressSummary> => {
   if (!isSupabaseConfigured()) {
     const diagnostic = getMockDiagnosticReport();
+    const roleplayHistory = roleplaySessionsToPracticeHistory(
+      await getRecentRoleplaySessions(5)
+    );
 
     return {
       diagnostic,
@@ -80,6 +87,7 @@ export const getProgressSummary = cache(async (): Promise<ProgressSummary> => {
         completedLessons: 1,
       }),
       practiceHistory: [
+        ...roleplayHistory,
         {
           title: "Diagnostic baseline",
           type: "Diagnostic",
@@ -123,24 +131,30 @@ export const getProgressSummary = cache(async (): Promise<ProgressSummary> => {
     };
   }
 
-  const [diagnostic, focusResult, analysisResult, progressResult] =
-    await Promise.all([
-      getLatestDiagnosticReport(),
-      supabase
-        .from("focus_areas")
-        .select("*")
-        .eq("user_id", user.id)
-        .is("resolved_at", null)
-        .order("priority", { ascending: true })
-        .limit(5),
-      supabase
-        .from("speech_analysis_results")
-        .select("*, recordings(recording_type, lesson_id, created_at)")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(12),
-      supabase.from("user_progress").select("*").eq("user_id", user.id),
-    ]);
+  const [
+    diagnostic,
+    focusResult,
+    analysisResult,
+    progressResult,
+    roleplaySessions,
+  ] = await Promise.all([
+    getLatestDiagnosticReport(),
+    supabase
+      .from("focus_areas")
+      .select("*")
+      .eq("user_id", user.id)
+      .is("resolved_at", null)
+      .order("priority", { ascending: true })
+      .limit(5),
+    supabase
+      .from("speech_analysis_results")
+      .select("*, recordings(recording_type, lesson_id, created_at)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(12),
+    supabase.from("user_progress").select("*").eq("user_id", user.id),
+    getRecentRoleplaySessions(8),
+  ]);
 
   const analyses = analysisResult.data ?? [];
   const focusAreas: FocusArea[] = (focusResult.data ?? []).map((area) => ({
@@ -168,6 +182,7 @@ export const getProgressSummary = cache(async (): Promise<ProgressSummary> => {
     score: Number(analysis.overall_score ?? 0),
     feedbackHref: `/feedback/${analysis.recording_id}`,
   }));
+  const roleplayHistory = roleplaySessionsToPracticeHistory(roleplaySessions);
 
   return {
     diagnostic,
@@ -178,7 +193,7 @@ export const getProgressSummary = cache(async (): Promise<ProgressSummary> => {
       practiceCount: analyses.length,
       completedLessons,
     }),
-    practiceHistory,
+    practiceHistory: [...roleplayHistory, ...practiceHistory],
     analysedRecordingsCount: analyses.length,
     completedLessonsCount: completedLessons,
     latestScore,

@@ -157,6 +157,16 @@ Phase 7 lesson/shadowing behaviour:
 - Reference audio requests enforce a 600-character text limit and require a signed-in user when Supabase is configured.
 - User recordings continue to use the existing per-user private paths. Reference audio is non-user voice content and is managed by the service role only.
 
+Phase 8 roleplay behaviour:
+
+- `POST /api/roleplay/start` creates a `roleplay_sessions` row and an opening assistant `roleplay_messages` row.
+- `POST /api/roleplay/turn` saves a user message from typed text or a linked `recordings` row, generates one assistant reply, and saves the assistant message.
+- `POST /api/roleplay/end` marks the session complete and saves the high-level feedback summary in `roleplay_sessions.summary`.
+- `GET /api/roleplay/sessions` and `GET /api/roleplay/sessions/[sessionId]` return only the signed-in user's sessions and messages.
+- The existing RLS policies keep roleplay sessions and transcripts user-owned. Linked voice recordings remain deletable through the recordings flow.
+- If ElevenLabs is enabled for assistant audio, generated MP3s are stored in the private `recordings` bucket under `roleplay-audio/{sessionId}/{messageId}.mp3` and returned via signed URL.
+- Mock mode uses an in-memory session store and does not persist transcripts after the dev server restarts.
+
 ## 7. RLS Model
 
 RLS is enabled on all user-owned tables. Policies follow this pattern:

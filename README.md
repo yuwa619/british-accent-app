@@ -74,6 +74,8 @@ Phase 6 adds the diagnostic journey and progress layer: a 3-part diagnostic sess
 
 Phase 7 upgrades lessons and shadowing into guided practice flows: structured lesson step navigation, reference text/audio support, optional ElevenLabs generation through `POST /api/reference-audio`, side-by-side reference vs user comparison, post-recording energy and approximate pitch movement visuals, mini feedback summaries, and lesson completion controls.
 
+Phase 8 adds turn-based AI roleplay practice: scenario selection, session creation, typed and recorded user turns, mock or GPT-4o-mini assistant replies, optional ElevenLabs assistant audio, saved roleplay sessions/messages, transcript UI, end-session feedback summaries, and dashboard/progress activity updates.
+
 ## Recording Development Notes
 
 - Recording starts only after the user clicks `Record`.
@@ -109,3 +111,11 @@ Phase 7 upgrades lessons and shadowing into guided practice flows: structured le
 - `/practice/shadowing` offers workplace prompt categories such as introductions, clarification, interviews, phone calls, customer-facing conversations, and meeting contributions.
 - `POST /api/reference-audio` returns a mock/text fallback unless ElevenLabs is enabled. When Supabase and a service role key are configured, generated MP3s are cached in the private `recordings` bucket under `reference-audio/{hash}.mp3`.
 - Mock mode remains fully usable without Supabase, Azure, OpenAI, or ElevenLabs keys.
+
+## Roleplay Notes
+
+- `/practice/roleplay` is turn-based: start a scenario, read the assistant prompt, reply by typed text or a saved voice turn, then end the session for feedback.
+- `POST /api/roleplay/start`, `POST /api/roleplay/turn`, `POST /api/roleplay/end`, and `GET /api/roleplay/sessions` power the MVP flow.
+- Local mock mode works without Supabase, OpenAI, Azure, or ElevenLabs keys. Real assistant replies use GPT-4o-mini only when `ENABLE_REAL_AI=true` and `OPENAI_API_KEY` is set.
+- Assistant voice responses are optional and use ElevenLabs only when `ENABLE_ELEVENLABS=true`; otherwise roleplay remains text-based.
+- MVP sessions are capped at 10 user turns. Transcripts and linked recordings are user-owned and follow existing Supabase RLS policies when Supabase is configured.

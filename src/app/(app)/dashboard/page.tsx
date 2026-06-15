@@ -31,13 +31,17 @@ import {
 import { getDashboardSummary } from "@/lib/data/dashboard";
 import { getRecentAnalysedRecordings } from "@/lib/data/analysis";
 import { getRecentRecordings } from "@/lib/data/recordings";
+import { getRecentRoleplaySessions } from "@/lib/data/roleplay";
 import { cn } from "@/lib/utils";
 
 export default async function DashboardPage() {
-  const [summary, recentRecordings] = await Promise.all([
-    getDashboardSummary(),
-    getRecentRecordings(4),
-  ]);
+  const [summary, recentRecordings, recentRoleplaySessions] = await Promise.all(
+    [
+      getDashboardSummary(),
+      getRecentRecordings(4),
+      getRecentRoleplaySessions(3),
+    ]
+  );
   const analysedRecordings = await getRecentAnalysedRecordings(2);
   const firstName =
     summary.profile?.full_name?.split(" ")[0] ??
@@ -214,13 +218,40 @@ export default async function DashboardPage() {
         <Card>
           <CardHeader>
             <MessageSquareTextIcon className="size-5 text-primary" />
-            <CardTitle>Roleplay preview</CardTitle>
+            <CardTitle>Roleplay practice</CardTitle>
             <CardDescription>
-              Turn-based UK workplace conversations arrive after recording and
-              analysis.
+              Turn-based UK workplace conversations for interviews, meetings,
+              service conversations, and phone calls.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="flex flex-col gap-4">
+            {recentRoleplaySessions.length ? (
+              <div className="rounded-lg border bg-background p-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="secondary">
+                    {recentRoleplaySessions.length} recent
+                  </Badge>
+                  <Badge variant="outline">
+                    {recentRoleplaySessions[0]?.status ?? "active"}
+                  </Badge>
+                </div>
+                <p className="mt-3 font-medium">
+                  {recentRoleplaySessions[0]?.title}
+                </p>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  Continue practising or start a new scenario when you are
+                  ready.
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-lg border bg-background p-4">
+                <p className="font-medium">No roleplay sessions yet</p>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  Start with a short interview or workplace introduction
+                  scenario.
+                </p>
+              </div>
+            )}
             <Link
               className={cn(
                 buttonVariants({ variant: "outline" }),
@@ -228,7 +259,7 @@ export default async function DashboardPage() {
               )}
               href="/practice/roleplay"
             >
-              Preview scenarios
+              Open roleplay
             </Link>
             <PrivacyConsentNotice compact />
           </CardContent>
