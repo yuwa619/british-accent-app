@@ -14,6 +14,7 @@ import { NextExerciseCard } from "@/components/feedback/next-exercise-card";
 import { SoundFeedbackList } from "@/components/feedback/sound-feedback-list";
 import { TranscriptCard } from "@/components/feedback/transcript-card";
 import { WordFeedbackList } from "@/components/feedback/word-feedback-list";
+import { PageHeader } from "@/components/app/page-header";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -42,7 +43,7 @@ export default async function FeedbackPage({
   const { feedback, recording } = result;
 
   return (
-    <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
+    <section className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           className={cn(
@@ -64,6 +65,12 @@ export default async function FeedbackPage({
           <Badge variant="outline">{feedback.provider}</Badge>
         </div>
       </div>
+
+      <PageHeader
+        eyebrow="Feedback"
+        title="Speech feedback"
+        description="Review your transcript, clarity scores, coaching notes, and one practical next exercise."
+      />
 
       <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <FeedbackSummary
@@ -156,6 +163,6 @@ export default async function FeedbackPage({
           </CardContent>
         </Card>
       </section>
-    </main>
+    </section>
   );
 }

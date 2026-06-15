@@ -177,6 +177,14 @@ Phase 9 privacy/settings behaviour:
 - `data_deletion_requests` RLS lets authenticated users insert and read only their own requests. Service role/admin workflows can manage completion outside the user app.
 - Subscription data remains in the existing `subscriptions` table. Stripe checkout is feature-flagged and does not write live subscription state until webhook handling is added.
 
+Phase 10 retention maintenance:
+
+- `POST /api/maintenance/purge-old-recordings` is available as a protected maintenance endpoint.
+- The endpoint requires `MAINTENANCE_SECRET` through `Authorization: Bearer <secret>` or `x-maintenance-secret`.
+- In Supabase mode it uses the server-only service role client, reads `user_settings.retain_recordings_days`, deletes stale Storage objects first, then deletes matching `recordings` rows.
+- In mock mode or without admin credentials it returns a safe no-op response.
+- See `docs/RETENTION_PURGE_PLAN.md` before scheduling this route.
+
 ## 7. RLS Model
 
 RLS is enabled on all user-owned tables. Policies follow this pattern:

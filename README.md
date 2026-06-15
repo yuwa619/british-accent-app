@@ -27,6 +27,8 @@ Open [http://localhost:3000](http://localhost:3000).
 ```bash
 npm run lint
 npm run typecheck
+npm run test:e2e
+npm run test:all
 npm run build
 npm run format:check
 ```
@@ -79,6 +81,8 @@ Phase 7 upgrades lessons and shadowing into guided practice flows: structured le
 Phase 8 adds turn-based AI roleplay practice: scenario selection, session creation, typed and recorded user turns, mock or GPT-4o-mini assistant replies, optional ElevenLabs assistant audio, saved roleplay sessions/messages, transcript UI, end-session feedback summaries, and dashboard/progress activity updates.
 
 Phase 9 hardens beta readiness: privacy/account settings, persisted voice data preferences, delete-all-recordings, data deletion requests, safe PostHog analytics helpers, safe Sentry error capture helpers, subscription-ready usage limits, and Stripe Checkout behind `ENABLE_STRIPE_CHECKOUT=false`.
+
+Phase 10 adds beta readiness hardening: Playwright smoke tests, accessibility landmark fixes, protected retention purge maintenance route, provider QA checklist, retention purge plan, known limitations, launch checklist, and final documentation updates.
 
 ## Recording Development Notes
 
@@ -133,3 +137,21 @@ Phase 9 hardens beta readiness: privacy/account settings, persisted voice data p
 - PostHog analytics are disabled unless `NEXT_PUBLIC_ENABLE_ANALYTICS=true` and `NEXT_PUBLIC_POSTHOG_KEY` are set. Do not track transcripts, raw roleplay messages, or voice data.
 - Sentry capture is disabled unless `ENABLE_SENTRY=true` and `SENTRY_DSN` are set. Monitoring helpers are no-op safe when missing.
 - Stripe Checkout is disabled unless `ENABLE_STRIPE_CHECKOUT=true`, `STRIPE_SECRET_KEY`, and `STRIPE_PRO_MONTHLY_PRICE_ID` are configured. Live charging is off by default.
+- Retention purge is available at `POST /api/maintenance/purge-old-recordings` and requires `MAINTENANCE_SECRET`. See [docs/RETENTION_PURGE_PLAN.md](docs/RETENTION_PURGE_PLAN.md).
+
+## Testing
+
+Playwright e2e tests run in mock mode and do not require Supabase or provider keys:
+
+```bash
+npm run test:e2e
+```
+
+The suite covers landing/auth routes, dashboard/progress, lessons, diagnostic mock baseline generation, feedback, shadowing, roleplay typed turns, settings privacy controls, data deletion request, and disabled checkout.
+
+## Launch Readiness Docs
+
+- [Provider QA Checklist](docs/PROVIDER_QA_CHECKLIST.md)
+- [Retention Purge Plan](docs/RETENTION_PURGE_PLAN.md)
+- [Known Limitations](docs/KNOWN_LIMITATIONS.md)
+- [Beta Launch Checklist](docs/BETA_LAUNCH_CHECKLIST.md)
