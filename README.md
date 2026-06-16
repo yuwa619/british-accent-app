@@ -164,11 +164,11 @@ If Vercel Deployment Protection is enabled for the preview, create a Protection 
 
 ```bash
 PLAYWRIGHT_BASE_URL=https://your-preview-domain.vercel.app \
-VERCEL_AUTOMATION_BYPASS_SECRET=your-local-bypass-value \
+VERCEL_AUTOMATION_BYPASS_SECRET=<secret> \
 npm run test:e2e
 ```
 
-Never commit the bypass value.
+Replace `<secret>` with the real Vercel bypass value before running the command. Never commit the bypass value, and rotate it immediately if it is exposed.
 
 The suite covers landing/auth routes, dashboard/progress, lessons, diagnostic mock baseline generation, feedback, shadowing, roleplay typed turns, settings privacy controls, data deletion request, and disabled checkout.
 

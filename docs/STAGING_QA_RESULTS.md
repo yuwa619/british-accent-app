@@ -110,18 +110,18 @@ After applying SQL, reload the PostgREST schema cache from the Supabase dashboar
 
 ## Preview Deployment Protection
 
-The preview deployment at `https://british-accent-3kqfuaq5b-yuwa619-2396s-projects.vercel.app` currently returns Vercel Deployment Protection HTML to unauthenticated automation. Configure one of these before rerunning preview Playwright tests:
+The preview deployment at `https://british-accent-3kqfuaq5b-yuwa619-2396s-projects.vercel.app` currently returns Vercel Deployment Protection HTML to unauthenticated automation. A request that used `YOUR_NEW_BYPASS_SECRET` still returned Vercel Authentication because that string was a placeholder, not the real bypass value. Configure one of these before rerunning preview Playwright tests:
 
 1. Disable Deployment Protection for Preview temporarily during staging QA.
 2. Create a Protection Bypass for Automation in Vercel and run:
 
 ```bash
-PLAYWRIGHT_BASE_URL=https://british-accent-3kqfuaq5b-yuwa619-2396s-projects.vercel.app \
-VERCEL_AUTOMATION_BYPASS_SECRET=your-local-bypass-value \
+PLAYWRIGHT_BASE_URL=<preview-url> \
+VERCEL_AUTOMATION_BYPASS_SECRET=<secret> \
 npm run test:e2e
 ```
 
-Never commit the bypass value. The test suite appends the bypass query parameters to browser navigations and API requests when the variable is present.
+Replace `<preview-url>` with the preview deployment URL and `<secret>` with the real Vercel bypass value. Do not use placeholder strings like `YOUR_NEW_BYPASS_SECRET`. Never commit the bypass value, and rotate it immediately if it is exposed. The test suite appends the bypass query parameters to browser navigations and API requests when the variable is present.
 
 ## Blockers
 
@@ -139,8 +139,8 @@ Never commit the bypass value. The test suite appends the bypass query parameter
 5. Run:
 
 ```bash
-PLAYWRIGHT_BASE_URL=https://british-accent-3kqfuaq5b-yuwa619-2396s-projects.vercel.app \
-VERCEL_AUTOMATION_BYPASS_SECRET=your-local-bypass-value \
+PLAYWRIGHT_BASE_URL=<preview-url> \
+VERCEL_AUTOMATION_BYPASS_SECRET=<secret> \
 npm run test:e2e
 ```
 

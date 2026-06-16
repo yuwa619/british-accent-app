@@ -3,6 +3,9 @@ import { defineConfig, devices } from "@playwright/test";
 const defaultBaseURL = "http://localhost:3100";
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? defaultBaseURL;
 const shouldStartLocalServer = !process.env.PLAYWRIGHT_BASE_URL;
+const hasVercelAutomationBypass = Boolean(
+  process.env.VERCEL_AUTOMATION_BYPASS_SECRET?.trim()
+);
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -10,7 +13,7 @@ export default defineConfig({
   reporter: [["list"]],
   use: {
     baseURL,
-    trace: "on-first-retry",
+    trace: hasVercelAutomationBypass ? "off" : "on-first-retry",
   },
   webServer: shouldStartLocalServer
     ? {
