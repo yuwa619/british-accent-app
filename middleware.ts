@@ -11,8 +11,6 @@ const protectedRoutePatterns = [
   /^\/settings(?:\/.*)?$/,
 ];
 
-const authRoutes = new Set(["/auth/sign-in", "/auth/sign-up"]);
-
 function isSupabaseConfigured() {
   return Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -24,8 +22,22 @@ function isProtectedPath(pathname: string) {
   return protectedRoutePatterns.some((pattern) => pattern.test(pathname));
 }
 
+function redirectToSignIn(request: NextRequest) {
+  const redirectUrl = request.nextUrl.clone();
+  redirectUrl.pathname = "/auth/sign-in";
+  redirectUrl.searchParams.set("next", request.nextUrl.pathname);
+
+  return NextResponse.redirect(redirectUrl);
+}
+
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+
+  if (!isProtectedPath(pathname)) {
+    return NextResponse.next({
+      request,
+    });
+  }
 
   if (!isSupabaseConfigured()) {
     return NextResponse.next({
@@ -37,49 +49,41 @@ export async function middleware(request: NextRequest) {
     request,
   });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => {
-            request.cookies.set(name, value);
-          });
+  try {
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value }) => {
+              request.cookies.set(name, value);
+            });
 
-          response = NextResponse.next({
-            request,
-          });
+            response = NextResponse.next({
+              request,
+            });
 
-          cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options);
-          });
+            cookiesToSet.forEach(({ name, value, options }) => {
+              response.cookies.set(name, value, options);
+            });
+          },
         },
-      },
+      }
+    );
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return redirectToSignIn(request);
     }
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user && isProtectedPath(pathname)) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/auth/sign-in";
-    redirectUrl.searchParams.set("next", pathname);
-
-    return NextResponse.redirect(redirectUrl);
-  }
-
-  if (user && authRoutes.has(pathname)) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/dashboard";
-    redirectUrl.search = "";
-
-    return NextResponse.redirect(redirectUrl);
+  } catch {
+    return redirectToSignIn(request);
   }
 
   return response;
@@ -87,6 +91,12 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/dashboard/:path*",
+    "/diagnostic/:path*",
+    "/lessons/:path*",
+    "/practice/:path*",
+    "/feedback/:path*",
+    "/progress/:path*",
+    "/settings/:path*",
   ],
 };

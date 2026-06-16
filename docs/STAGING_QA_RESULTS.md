@@ -9,20 +9,20 @@ Starting commit: `e01ccef Phase 12 staging deployment QA readiness`
 
 ## Status Matrix
 
-| Area                               | Status          | Notes                                                                                                                 |
-| ---------------------------------- | --------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Supabase QA                        | Failed/blocking | Staging connection and Auth work, but public app tables return `PGRST205` schema-cache/table-not-found errors.        |
-| Supabase migrations/seed readiness | Not applied     | Migration files `001` through `005` and `supabase/seed.sql` are present locally; staging API cannot see app tables.   |
-| Supabase RLS/storage QA            | Partial         | `recordings` bucket exists and is private. Upload is blocked until Storage policies from migration `001` are applied. |
-| Vercel preview QA                  | Blocked         | Preview deployment is live, but Vercel Deployment Protection returns authentication HTML before the app.              |
-| Playwright preview tests           | Blocked         | Preview tests need Deployment Protection disabled for Preview or `VERCEL_AUTOMATION_BYPASS_SECRET` configured.        |
-| Local Playwright tests             | Passed          | `npm run test:e2e` and `npm run test` each pass 12 local mock-mode checks.                                            |
-| Azure QA                           | Not run         | `ENABLE_REAL_AI=false`; provider smoke should wait until Supabase staging passes.                                     |
-| OpenAI QA                          | Not run         | `ENABLE_REAL_AI=false`; provider smoke should wait until Supabase staging passes.                                     |
-| ElevenLabs QA                      | Not run         | `ENABLE_ELEVENLABS=false`; provider smoke should wait until Supabase staging passes.                                  |
-| PostHog QA                         | Not run         | Analytics remains disabled.                                                                                           |
-| Sentry QA                          | Not run         | Sentry remains disabled.                                                                                              |
-| Stripe status                      | Disabled        | `.env.local` has `ENABLE_STRIPE_CHECKOUT=false`. Live billing was not enabled or tested.                              |
+| Area                               | Status          | Notes                                                                                                                                       |
+| ---------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Supabase QA                        | Failed/blocking | Staging connection and Auth work, but public app tables return `PGRST205` schema-cache/table-not-found errors.                              |
+| Supabase migrations/seed readiness | Not applied     | Migration files `001` through `005` and `supabase/seed.sql` are present locally; staging API cannot see app tables.                         |
+| Supabase RLS/storage QA            | Partial         | `recordings` bucket exists and is private. Upload is blocked until Storage policies from migration `001` are applied.                       |
+| Vercel preview QA                  | Partial pass    | New preview serves the app and `/api/system/health` returns JSON `401`; deeper unauthenticated app-flow tests need staging auth/data setup. |
+| Playwright preview tests           | Partial pass    | Preview tests reach the app: 6/12 pass. The remaining failures are unauthenticated staging-mode states, not Vercel middleware/auth HTML.    |
+| Local Playwright tests             | Passed          | `npm run test:e2e` and `npm run test` each pass 12 local mock-mode checks.                                                                  |
+| Azure QA                           | Not run         | `ENABLE_REAL_AI=false`; provider smoke should wait until Supabase staging passes.                                                           |
+| OpenAI QA                          | Not run         | `ENABLE_REAL_AI=false`; provider smoke should wait until Supabase staging passes.                                                           |
+| ElevenLabs QA                      | Not run         | `ENABLE_ELEVENLABS=false`; provider smoke should wait until Supabase staging passes.                                                        |
+| PostHog QA                         | Not run         | Analytics remains disabled.                                                                                                                 |
+| Sentry QA                          | Not run         | Sentry remains disabled.                                                                                                                    |
+| Stripe status                      | Disabled        | `.env.local` has `ENABLE_STRIPE_CHECKOUT=false`. Live billing was not enabled or tested.                                                    |
 
 ## Local Environment Verification
 
@@ -31,9 +31,8 @@ Starting commit: `e01ccef Phase 12 staging deployment QA readiness`
 - Confirmed `NEXT_PUBLIC_SUPABASE_URL` matches the staging project URL supplied by the project owner.
 - Confirmed feature flags are conservative: `ENABLE_STRIPE_CHECKOUT=false`, `ENABLE_REAL_AI=false`, and `ENABLE_ELEVENLABS=false`.
 - Confirmed Vercel CLI is installed.
-- Confirmed local `npx vercel build --yes` can pull ignored Vercel project settings and complete a preview build.
-- Removed the downloaded `.vercel/.env.preview.local` file after the build check so Vercel preview secrets are not retained in the repo workspace.
-- Confirmed the real preview URL returns Vercel's `Authentication Required` HTML without a bypass, including the documented Protection Bypass for Automation query parameters. This explains the Playwright JSON parse error for `/api/system/health` and the missing app headings.
+- Confirmed local `npx vercel build` detects Next.js and creates all app/API serverless functions after adding `vercel.json` and using the standard `next build` script.
+- Confirmed the latest preview no longer returns Vercel Authentication HTML or `MIDDLEWARE_INVOCATION_FAILED` for `/api/system/health`.
 - Confirmed the app serves locally at `http://localhost:3000` with `.env.local` loaded.
 - Confirmed the in-app browser renders the landing page with the expected heading, one `<main>` landmark, no framework overlay, and no relevant console errors.
 
@@ -43,6 +42,25 @@ Starting commit: `e01ccef Phase 12 staging deployment QA readiness`
 - `GET /api/system/health` with the maintenance secret returns `200`.
 - Health checks report Supabase configured, service role configured, real AI disabled, ElevenLabs disabled, analytics disabled, Sentry disabled, and Stripe checkout disabled.
 - The health response did not include secret values or secret variable names.
+
+## Vercel Middleware Fix Verification
+
+Latest preview URL:
+
+```text
+https://british-accent-ol3kns4nc-yuwa619-2396s-projects.vercel.app
+```
+
+The previous preview failed with `x-vercel-error: MIDDLEWARE_INVOCATION_FAILED` on `GET /api/system/health`. The middleware now matches only protected app routes and no longer runs for `/api/:path*`, public routes, Next.js internals, or static assets.
+
+Verification:
+
+- `curl -i https://british-accent-ol3kns4nc-yuwa619-2396s-projects.vercel.app/api/system/health` returned HTTP `401`.
+- Response content type was `application/json`.
+- Response body was the expected safe unauthorised health-check error.
+- No `x-vercel-error` header was present.
+- No `MIDDLEWARE_INVOCATION_FAILED` response was present.
+- `curl -I https://british-accent-ol3kns4nc-yuwa619-2396s-projects.vercel.app/` returned HTTP `200`.
 
 ## Supabase Direct Check Results
 
@@ -96,21 +114,20 @@ After applying SQL, reload the PostgREST schema cache from the Supabase dashboar
 
 ## Local Check Results
 
-| Command                  | Result                                                        |
-| ------------------------ | ------------------------------------------------------------- |
-| `npm run format`         | Passed                                                        |
-| `npm run format:check`   | Passed                                                        |
-| `npm run typecheck`      | Passed                                                        |
-| `npm run lint`           | Passed                                                        |
-| `npm run build`          | Passed                                                        |
-| `npm run test:e2e`       | Passed: 12 local mock-mode checks                             |
-| `npm run test`           | Passed: 12 local mock-mode checks                             |
-| `npx vercel build`       | Failed: project settings were not present locally             |
-| `npx vercel build --yes` | Passed: project settings pulled, build completed successfully |
+| Command                | Result                                                     |
+| ---------------------- | ---------------------------------------------------------- |
+| `npm run format`       | Passed                                                     |
+| `npm run format:check` | Passed                                                     |
+| `npm run typecheck`    | Passed                                                     |
+| `npm run lint`         | Passed                                                     |
+| `npm run build`        | Passed                                                     |
+| `npm run test:e2e`     | Passed: 12 local mock-mode checks                          |
+| `npm run test`         | Passed: 12 local mock-mode checks                          |
+| `npx vercel build`     | Passed: detected Next.js and created all app/API functions |
 
 ## Preview Deployment Protection
 
-The preview deployment at `https://british-accent-3kqfuaq5b-yuwa619-2396s-projects.vercel.app` currently returns Vercel Deployment Protection HTML to unauthenticated automation. A request that used `YOUR_NEW_BYPASS_SECRET` still returned Vercel Authentication because that string was a placeholder, not the real bypass value. Configure one of these before rerunning preview Playwright tests:
+Earlier preview deployments returned Vercel Deployment Protection HTML to unauthenticated automation. A request that used `YOUR_NEW_BYPASS_SECRET` still returned Vercel Authentication because that string was a placeholder, not the real bypass value. Configure one of these if Deployment Protection is enabled before rerunning preview Playwright tests:
 
 1. Disable Deployment Protection for Preview temporarily during staging QA.
 2. Create a Protection Bypass for Automation in Vercel and run:
@@ -126,23 +143,23 @@ Replace `<preview-url>` with the preview deployment URL and `<secret>` with the 
 ## Blockers
 
 1. Staging Supabase migrations and seed data must be applied.
-2. Vercel Deployment Protection must be bypassed or disabled for Preview automation.
-3. A preview Playwright rerun is required after the bypass/exception is configured.
-4. Provider keys should wait until Supabase staging passes.
+2. Preview Playwright app-flow assertions need either an authenticated staging test user/session flow or test expectations that explicitly cover signed-out staging mode.
+3. Provider keys should wait until Supabase staging passes.
 
 ## Exact Next Actions
 
 1. Apply Supabase migrations and seed data to staging.
 2. Run `docs/SUPABASE_VERIFICATION_QUERIES.sql`.
 3. Rerun the direct staging QA checks.
-4. Configure a Vercel Preview protection exception or automation bypass.
-5. Run:
+4. If Vercel Deployment Protection is enabled, configure a Preview protection exception or automation bypass.
+5. Run preview smoke tests:
 
 ```bash
 PLAYWRIGHT_BASE_URL=<preview-url> \
-VERCEL_AUTOMATION_BYPASS_SECRET=<secret> \
 npm run test:e2e
 ```
+
+Add `VERCEL_AUTOMATION_BYPASS_SECRET=<secret>` only when Vercel Deployment Protection is enabled.
 
 6. Complete two-user RLS/storage QA.
 7. Keep `ENABLE_STRIPE_CHECKOUT=false`.

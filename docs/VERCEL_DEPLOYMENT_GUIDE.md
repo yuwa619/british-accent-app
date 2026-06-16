@@ -123,6 +123,8 @@ Never put `SUPABASE_SERVICE_ROLE_KEY`, `AZURE_SPEECH_KEY`, `OPENAI_API_KEY`, `EL
 
 ## 5. Deploy Preview
 
+The repo includes `vercel.json` with `"framework": "nextjs"` so Vercel should detect the app as a Next.js project. Keep the build command on the standard `next build` path for Vercel compatibility. If a deployment only creates a middleware function and omits app/API routes, inspect the deployment and confirm Vercel detected Next.js before testing the preview.
+
 1. Open a Vercel preview deployment.
 2. Confirm the landing page loads.
 3. Confirm protected routes redirect when Supabase is configured and the user is signed out.
@@ -189,6 +191,14 @@ See `docs/RETENTION_PURGE_PLAN.md` before adding Vercel Cron or an external sche
 
 ## 9. Post-Deploy Smoke Test
 
+Before running the full browser suite, check that the system health route is handled by the API route, not middleware:
+
+```bash
+curl -i https://your-preview-domain.vercel.app/api/system/health
+```
+
+Expected without `MAINTENANCE_SECRET`: HTTP `401`, `content-type: application/json`, no `x-vercel-error`, and no `MIDDLEWARE_INVOCATION_FAILED`. If this returns Vercel Authentication HTML, configure the Preview protection bypass below. If it returns `MIDDLEWARE_INVOCATION_FAILED`, inspect `middleware.ts` and confirm the matcher is limited to protected app routes only.
+
 Run locally against the preview URL if you want Playwright coverage outside Vercel:
 
 ```bash
@@ -211,6 +221,8 @@ npm run test:e2e
 Replace `<preview-url>` and `<secret>` before running the command. Do not type placeholder strings such as `YOUR_NEW_BYPASS_SECRET`, `your-local-bypass-value`, or `<secret>` literally; Vercel will keep returning the authentication page. If the bypass value is ever exposed in logs, chat, screenshots, traces, or commits, rotate it in Vercel immediately.
 
 Do not commit the bypass value. When `VERCEL_AUTOMATION_BYPASS_SECRET` is set, the Playwright suite appends Vercel's bypass query parameters to both browser navigations and API requests, including `/api/system/health`.
+
+Avoid `vercel --prebuilt` for routine preview QA unless `npx vercel build` has just produced a complete `.vercel/output` with all app and API functions. A source deploy with `vercel --yes` is safer while the staging project is still being verified.
 
 ## 10. Production Promotion
 

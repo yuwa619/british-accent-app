@@ -65,6 +65,8 @@
 
 - [ ] Deploy to Vercel preview.
 - [ ] Follow `docs/VERCEL_DEPLOYMENT_GUIDE.md`.
+- [ ] Confirm `/api/system/health` returns JSON `401` without `MAINTENANCE_SECRET` and is not intercepted by middleware.
+- [ ] Confirm Vercel detects the project as Next.js and deploys app/API routes, not only middleware.
 - [ ] Run smoke tests against preview.
 - [ ] Check Vercel logs for server errors.
 - [ ] Confirm cache/build output does not expose secrets.
