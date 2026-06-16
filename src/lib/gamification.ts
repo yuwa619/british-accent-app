@@ -87,7 +87,7 @@ export const LEVEL_TIERS: LevelTier[] = [
   { level: 4, title: "Fluent Presence", subtitle: "Polished, easy delivery" },
   {
     level: 5,
-    title: "Native-like Flow",
+    title: "Natural Flow",
     subtitle: "Effortless UK communication",
   },
 ];
@@ -202,7 +202,7 @@ function buildAchievements(
     {
       key: "roleplay-ready",
       label: "Roleplay ready",
-      description: "Practised a live workplace conversation.",
+      description: "Practised a turn-based workplace conversation.",
       icon: "mic",
       earned: practiceCount >= 1,
     },
