@@ -82,6 +82,8 @@ For staging setup and two-user ownership testing, follow:
 docs/STAGING_SUPABASE_RUNBOOK.md
 ```
 
+If app-table requests return `PGRST205` errors such as "Could not find the table in the schema cache", the staging project either has not had the migrations applied or PostgREST has not reloaded its schema cache. Apply all migration files in order, run `supabase/seed.sql`, then reload the API schema cache from the Supabase dashboard if the tables still do not appear.
+
 ## 5. Configure Auth Redirect URLs
 
 In **Authentication > URL Configuration**, set:

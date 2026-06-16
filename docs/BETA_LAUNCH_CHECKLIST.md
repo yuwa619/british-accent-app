@@ -19,6 +19,7 @@
 - [ ] Seed the first 10 lessons.
 - [ ] Run `docs/SUPABASE_VERIFICATION_QUERIES.sql` in the Supabase SQL editor.
 - [ ] Complete `docs/STAGING_SUPABASE_RUNBOOK.md`.
+- [ ] Confirm no app-table requests return Supabase `PGRST205` schema-cache errors.
 - [ ] Configure Auth redirect URLs for production and preview domains.
 - [ ] Confirm private `recordings` bucket and policies.
 - [ ] Verify RLS with two test users.
