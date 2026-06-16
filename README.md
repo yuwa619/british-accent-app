@@ -146,7 +146,7 @@ Phase 12 adds staging deployment QA readiness: staging Supabase and Vercel previ
 
 ## Testing
 
-Playwright e2e tests run in mock mode and do not require Supabase or provider keys:
+Playwright e2e tests run local mock coverage by default and do not require Supabase or provider keys:
 
 ```bash
 npm run test:e2e
@@ -154,7 +154,7 @@ npm run test:e2e
 
 The local Playwright server uses `http://localhost:3100` so it does not collide with the usual `npm run dev` app on port 3000.
 
-To run the same smoke suite against a Vercel preview:
+To run signed-out public and app-safety coverage against a Vercel preview:
 
 ```bash
 PLAYWRIGHT_BASE_URL=https://your-preview-domain.vercel.app npm run test:e2e
@@ -170,7 +170,16 @@ npm run test:e2e
 
 Replace `<secret>` with the real Vercel bypass value before running the command. Never commit the bypass value, and rotate it immediately if it is exposed.
 
-The suite covers landing/auth routes, dashboard/progress, lessons, diagnostic mock baseline generation, feedback, shadowing, roleplay typed turns, settings privacy controls, data deletion request, and disabled checkout.
+To run authenticated staging flows, create a disposable Supabase staging test user and provide credentials only through your shell or CI secret store:
+
+```bash
+PLAYWRIGHT_BASE_URL=https://your-preview-domain.vercel.app \
+E2E_TEST_EMAIL=<staging-test-email> \
+E2E_TEST_PASSWORD=<staging-test-password> \
+npm run test:e2e
+```
+
+Never commit real test credentials. The suite is split into public smoke tests, signed-out preview safety checks, local mock workflow tests, and optional authenticated staging workflow tests.
 
 ## Launch Readiness Docs
 

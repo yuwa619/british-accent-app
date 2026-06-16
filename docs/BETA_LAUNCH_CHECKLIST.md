@@ -17,6 +17,7 @@
 
 - [ ] Apply all migrations through `005_data_deletion_requests.sql`.
 - [ ] Seed the first 10 lessons.
+- [ ] Confirm staging `lessons`, `lesson_steps`, and `practice_prompts` are non-empty.
 - [ ] Run `docs/SUPABASE_VERIFICATION_QUERIES.sql` in the Supabase SQL editor.
 - [ ] Complete `docs/STAGING_SUPABASE_RUNBOOK.md`.
 - [ ] Confirm no app-table requests return Supabase `PGRST205` schema-cache errors.
@@ -53,6 +54,8 @@
 - [ ] Run `npm run lint`.
 - [ ] Run `npm run build`.
 - [ ] Run `npm run test:e2e`.
+- [ ] Run preview Playwright with `PLAYWRIGHT_BASE_URL=<preview-url> npm run test:e2e`.
+- [ ] Create a disposable staging test user and run authenticated Playwright with `E2E_TEST_EMAIL` and `E2E_TEST_PASSWORD`.
 - [ ] Smoke test core routes in a browser.
 - [ ] Test desktop width.
 - [ ] Test tablet width.

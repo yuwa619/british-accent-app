@@ -1,72 +1,17 @@
-import { expect, type Page, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
+import {
+  collectClientErrors,
+  expectHealthyPage,
+  isExternalPreview,
+} from "./helpers";
 import { withVercelProtectionBypass } from "./vercel-bypass";
 
-function collectClientErrors(page: Page) {
-  const errors: string[] = [];
-
-  page.on("console", (message) => {
-    if (message.type() === "error") {
-      errors.push(message.text());
-    }
-  });
-
-  page.on("pageerror", (error) => {
-    errors.push(error.message);
-  });
-
-  return errors;
-}
-
-async function expectHealthyPage(page: Page, path: string, heading: string) {
-  const errors = collectClientErrors(page);
-
-  await page.goto(withVercelProtectionBypass(path));
-  await expect(page.getByRole("heading", { name: heading })).toBeVisible();
-  await expect(page.locator("main")).toHaveCount(1);
-  await expect(page.getByText("Application error")).toHaveCount(0);
-  await expect(page.getByText("Unhandled Runtime Error")).toHaveCount(0);
-  expect(errors).toEqual([]);
-}
-
-test.describe("beta smoke coverage", () => {
-  test("system health endpoint is protected", async ({ request }) => {
-    const response = await request.get(
-      withVercelProtectionBypass("/api/system/health")
-    );
-    expect(response.status()).toBe(401);
-    const body = await response.json();
-    expect(JSON.stringify(body)).not.toContain("sk-");
-    expect(JSON.stringify(body)).not.toContain("SUPABASE_SERVICE_ROLE_KEY");
-  });
-
-  test("landing, auth, privacy, and terms routes render", async ({ page }) => {
-    await expectHealthyPage(
-      page,
-      "/",
-      "Speak more clearly and confidently in UK workplace conversations."
-    );
-    await expect(
-      page.getByRole("banner").getByRole("link", { name: "Start practising" })
-    ).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: "View lessons" })
-    ).toBeVisible();
-
-    await expectHealthyPage(page, "/auth/sign-in", "Sign in");
-    await expect(page.getByLabel("Email")).toBeVisible();
-    await expect(page.getByLabel("Password")).toBeVisible();
-
-    await expectHealthyPage(page, "/auth/sign-up", "Create account");
-    await expect(page.getByLabel("Full name")).toBeVisible();
-
-    await expectHealthyPage(
-      page,
-      "/privacy",
-      "Voice practice should feel transparent and controlled."
-    );
-    await expectHealthyPage(page, "/terms", "Plain-English beta terms.");
-  });
+test.describe("local mock app flow coverage", () => {
+  test.skip(
+    isExternalPreview,
+    "Preview/staging uses real environment state; run authenticated preview flows with E2E_TEST_EMAIL and E2E_TEST_PASSWORD."
+  );
 
   test("dashboard, onboarding, and progress render in mock mode", async ({
     page,

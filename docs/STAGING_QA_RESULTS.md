@@ -5,24 +5,24 @@ Starting commit: `e01ccef Phase 12 staging deployment QA readiness`
 
 ## Summary
 
-`.env.local` is now present and contains the required staging Supabase variables. The local app can reach the staging Supabase project, Supabase Auth works, the protected health endpoint works, and the private `recordings` bucket exists. Staging is not yet ready for full app QA because the public app tables are not available through the Supabase API schema cache. App data writes currently fail until migrations and seed data are applied to the staging database.
+`.env.local` is present and contains the required staging Supabase variables. The local app can reach the staging Supabase project, Supabase Auth works, the protected health endpoint works, the private `recordings` bucket exists, and the public app tables are now reachable. Staging is not yet ready for full authenticated app QA because the seed content is empty and authenticated E2E credentials have not been configured.
 
 ## Status Matrix
 
-| Area                               | Status          | Notes                                                                                                                                       |
-| ---------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Supabase QA                        | Failed/blocking | Staging connection and Auth work, but public app tables return `PGRST205` schema-cache/table-not-found errors.                              |
-| Supabase migrations/seed readiness | Not applied     | Migration files `001` through `005` and `supabase/seed.sql` are present locally; staging API cannot see app tables.                         |
-| Supabase RLS/storage QA            | Partial         | `recordings` bucket exists and is private. Upload is blocked until Storage policies from migration `001` are applied.                       |
-| Vercel preview QA                  | Partial pass    | New preview serves the app and `/api/system/health` returns JSON `401`; deeper unauthenticated app-flow tests need staging auth/data setup. |
-| Playwright preview tests           | Partial pass    | Preview tests reach the app: 6/12 pass. The remaining failures are unauthenticated staging-mode states, not Vercel middleware/auth HTML.    |
-| Local Playwright tests             | Passed          | `npm run test:e2e` and `npm run test` each pass 12 local mock-mode checks.                                                                  |
-| Azure QA                           | Not run         | `ENABLE_REAL_AI=false`; provider smoke should wait until Supabase staging passes.                                                           |
-| OpenAI QA                          | Not run         | `ENABLE_REAL_AI=false`; provider smoke should wait until Supabase staging passes.                                                           |
-| ElevenLabs QA                      | Not run         | `ENABLE_ELEVENLABS=false`; provider smoke should wait until Supabase staging passes.                                                        |
-| PostHog QA                         | Not run         | Analytics remains disabled.                                                                                                                 |
-| Sentry QA                          | Not run         | Sentry remains disabled.                                                                                                                    |
-| Stripe status                      | Disabled        | `.env.local` has `ENABLE_STRIPE_CHECKOUT=false`. Live billing was not enabled or tested.                                                    |
+| Area                               | Status         | Notes                                                                                                                    |
+| ---------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Supabase QA                        | Partial        | Staging connection, Auth, and app table access work. Seed content is empty and two-user RLS/storage QA is still pending. |
+| Supabase migrations/seed readiness | Seed missing   | Tables are reachable, but `lessons`, `lesson_steps`, and `practice_prompts` currently return count `0`.                  |
+| Supabase RLS/storage QA            | Pending        | `recordings` bucket exists and is private. Upload/read/delete ownership checks still need authenticated two-user QA.     |
+| Vercel preview QA                  | Passed         | Latest preview serves the app and `/api/system/health` returns JSON `401` with no middleware/Vercel auth failure.        |
+| Playwright preview tests           | Passed partial | Signed-out preview suite passed: 24 checks passed, 16 authenticated/local-only checks skipped by design.                 |
+| Local Playwright tests             | Passed         | `npm run test:e2e` and `npm run test` each pass 12 local mock-mode checks with 28 staging-only checks skipped.           |
+| Azure QA                           | Not run        | `ENABLE_REAL_AI=false`; provider smoke should wait until Supabase staging passes.                                        |
+| OpenAI QA                          | Not run        | `ENABLE_REAL_AI=false`; provider smoke should wait until Supabase staging passes.                                        |
+| ElevenLabs QA                      | Not run        | `ENABLE_ELEVENLABS=false`; provider smoke should wait until Supabase staging passes.                                     |
+| PostHog QA                         | Not run        | Analytics remains disabled.                                                                                              |
+| Sentry QA                          | Not run        | Sentry remains disabled.                                                                                                 |
+| Stripe status                      | Disabled       | `.env.local` has `ENABLE_STRIPE_CHECKOUT=false`. Live billing was not enabled or tested.                                 |
 
 ## Local Environment Verification
 
@@ -48,14 +48,14 @@ Starting commit: `e01ccef Phase 12 staging deployment QA readiness`
 Latest preview URL:
 
 ```text
-https://british-accent-ol3kns4nc-yuwa619-2396s-projects.vercel.app
+https://british-accent-ooxy1mwhx-yuwa619-2396s-projects.vercel.app
 ```
 
 The previous preview failed with `x-vercel-error: MIDDLEWARE_INVOCATION_FAILED` on `GET /api/system/health`. The middleware now matches only protected app routes and no longer runs for `/api/:path*`, public routes, Next.js internals, or static assets.
 
 Verification:
 
-- `curl -i https://british-accent-ol3kns4nc-yuwa619-2396s-projects.vercel.app/api/system/health` returned HTTP `401`.
+- `curl -i https://british-accent-ooxy1mwhx-yuwa619-2396s-projects.vercel.app/api/system/health` returned HTTP `401`.
 - Response content type was `application/json`.
 - Response body was the expected safe unauthorised health-check error.
 - No `x-vercel-error` header was present.
@@ -64,21 +64,23 @@ Verification:
 
 ## Supabase Direct Check Results
 
-| Check                            | Result                                                                    |
-| -------------------------------- | ------------------------------------------------------------------------- |
-| Project connection               | Passed                                                                    |
-| Auth admin create/delete user    | Passed                                                                    |
-| Email/password sign-in           | Passed                                                                    |
-| Public app tables                | Failed: `PGRST205` table/schema-cache errors                              |
-| Published lessons                | Failed: `lessons` table unavailable through API                           |
-| Private `recordings` bucket      | Passed                                                                    |
-| Storage upload as signed-in user | Failed: RLS policy violation, expected until Storage policies are applied |
-| Onboarding insert                | Failed: `onboarding_responses` table unavailable                          |
-| Settings upsert                  | Failed: `user_settings` table unavailable                                 |
-| Data deletion request insert     | Failed: `data_deletion_requests` table unavailable                        |
-| Recording metadata insert        | Failed: `recordings` table unavailable                                    |
-| Diagnostic/focus area insert     | Failed: `diagnostic_results` / `focus_areas` unavailable                  |
-| Roleplay session/message insert  | Failed: `roleplay_sessions` unavailable                                   |
+| Check                            | Result                                                              |
+| -------------------------------- | ------------------------------------------------------------------- |
+| Project connection               | Passed                                                              |
+| Auth admin create/delete user    | Passed                                                              |
+| Email/password sign-in           | Passed                                                              |
+| Public app tables                | Passed: schema is reachable through the Supabase API                |
+| Published lessons                | Seed missing: `lessons` count is `0`                                |
+| Lesson steps                     | Seed missing: `lesson_steps` count is `0`                           |
+| Practice prompts                 | Seed missing: `practice_prompts` count is `0`                       |
+| Private `recordings` bucket      | Passed                                                              |
+| Storage upload as signed-in user | Pending two-user storage/RLS QA                                     |
+| Onboarding insert                | Pending authenticated app QA                                        |
+| Settings upsert                  | Pending authenticated app QA                                        |
+| Data deletion request insert     | Table reachable; count is `0`; create flow pending authenticated QA |
+| Recording metadata insert        | Pending authenticated app QA                                        |
+| Diagnostic/focus area insert     | Pending authenticated app QA                                        |
+| Roleplay session/message insert  | Pending authenticated app QA                                        |
 
 ## App-Level Staging Check Results
 
@@ -86,11 +88,13 @@ Verification:
 - Temporary test user sign-in succeeds.
 - Sign-in redirects to `/dashboard`.
 - Dashboard renders without crashing.
-- App-level `POST /api/recordings` currently returns a safe `500` response with `Unable to upload recording. Please try again.` This is expected while migrations and Storage policies are missing.
+- Signed-out app routes render safely in Preview.
+- Roleplay start and Settings save actions require sign-in when no session is present.
+- Authenticated app write flows are pending `E2E_TEST_EMAIL` and `E2E_TEST_PASSWORD`.
 
 ## Required Staging Fix
 
-Apply migrations and seed data to the staging Supabase project:
+Apply or verify migrations, then seed data in the staging Supabase project:
 
 ```bash
 npx supabase@latest login
@@ -110,7 +114,7 @@ supabase/migrations/005_data_deletion_requests.sql
 supabase/seed.sql
 ```
 
-After applying SQL, reload the PostgREST schema cache from the Supabase dashboard if needed, then rerun `docs/SUPABASE_VERIFICATION_QUERIES.sql`.
+If migrations are already applied, running only `supabase/seed.sql` is enough to populate the first 10 lessons, lesson steps, and practice prompts. After applying SQL, reload the PostgREST schema cache from the Supabase dashboard if needed, then rerun `docs/SUPABASE_VERIFICATION_QUERIES.sql`.
 
 ## Local Check Results
 
@@ -121,9 +125,35 @@ After applying SQL, reload the PostgREST schema cache from the Supabase dashboar
 | `npm run typecheck`    | Passed                                                     |
 | `npm run lint`         | Passed                                                     |
 | `npm run build`        | Passed                                                     |
-| `npm run test:e2e`     | Passed: 12 local mock-mode checks                          |
-| `npm run test`         | Passed: 12 local mock-mode checks                          |
+| `npm run test:e2e`     | Passed: 12 local checks, 28 staging-only checks skipped    |
+| `npm run test`         | Passed: 12 local checks, 28 staging-only checks skipped    |
 | `npx vercel build`     | Passed: detected Next.js and created all app/API functions |
+
+## Preview Playwright Results
+
+Latest preview command:
+
+```bash
+PLAYWRIGHT_BASE_URL=https://british-accent-ooxy1mwhx-yuwa619-2396s-projects.vercel.app npm run test:e2e
+```
+
+Result:
+
+- 24 signed-out preview checks passed across desktop and mobile projects.
+- 16 checks were skipped intentionally:
+  - Local mock-only workflow tests are skipped whenever `PLAYWRIGHT_BASE_URL` is set.
+  - Authenticated staging workflow tests are skipped until `E2E_TEST_EMAIL` and `E2E_TEST_PASSWORD` are set.
+
+The previous 6 preview failures were:
+
+1. `Speech feedback` heading missing on `/feedback/mock-recording-id` because Preview was using real staging state and no mock analysed recording existed.
+2. The same feedback assertion failed on mobile for the same reason.
+3. `Conversation transcript` missing after starting roleplay because the signed-out API response correctly asked the user to sign in.
+4. The same roleplay assertion failed on mobile for the same reason.
+5. `Mock settings saved for this session.` missing because staging mode correctly returned `Sign in to update privacy settings.`
+6. The same settings assertion failed on mobile for the same reason.
+
+The new E2E strategy separates public, signed-out app safety, local mock workflows, and optional authenticated staging workflows.
 
 ## Preview Deployment Protection
 
@@ -142,13 +172,13 @@ Replace `<preview-url>` with the preview deployment URL and `<secret>` with the 
 
 ## Blockers
 
-1. Staging Supabase migrations and seed data must be applied.
-2. Preview Playwright app-flow assertions need either an authenticated staging test user/session flow or test expectations that explicitly cover signed-out staging mode.
+1. Staging Supabase seed data must be applied; `lessons`, `lesson_steps`, and `practice_prompts` currently have count `0`.
+2. Authenticated staging E2E needs `E2E_TEST_EMAIL` and `E2E_TEST_PASSWORD`.
 3. Provider keys should wait until Supabase staging passes.
 
 ## Exact Next Actions
 
-1. Apply Supabase migrations and seed data to staging.
+1. Apply `supabase/seed.sql` to staging, or rerun migrations plus seed if migration state is uncertain.
 2. Run `docs/SUPABASE_VERIFICATION_QUERIES.sql`.
 3. Rerun the direct staging QA checks.
 4. If Vercel Deployment Protection is enabled, configure a Preview protection exception or automation bypass.
@@ -160,6 +190,17 @@ npm run test:e2e
 ```
 
 Add `VERCEL_AUTOMATION_BYPASS_SECRET=<secret>` only when Vercel Deployment Protection is enabled.
+
+To run authenticated staging flows, create a disposable staging test user and run:
+
+```bash
+PLAYWRIGHT_BASE_URL=<preview-url> \
+E2E_TEST_EMAIL=<staging-test-email> \
+E2E_TEST_PASSWORD=<staging-test-password> \
+npm run test:e2e
+```
+
+Never commit real test credentials.
 
 6. Complete two-user RLS/storage QA.
 7. Keep `ENABLE_STRIPE_CHECKOUT=false`.

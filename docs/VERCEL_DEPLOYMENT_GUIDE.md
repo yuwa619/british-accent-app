@@ -207,6 +207,24 @@ PLAYWRIGHT_BASE_URL=https://your-preview-domain.vercel.app npm run test:e2e
 
 The Playwright config defaults to `http://localhost:3100` for local tests so it does not collide with a normal dev server on port 3000. When `PLAYWRIGHT_BASE_URL` is set, it targets that deployed URL and does not start the local dev server.
 
+The E2E suite is split by environment:
+
+- Public smoke tests always run.
+- Signed-out preview safety tests run only when `PLAYWRIGHT_BASE_URL` is set.
+- Local mock workflow tests run only when `PLAYWRIGHT_BASE_URL` is not set.
+- Authenticated staging workflow tests run only when `E2E_TEST_EMAIL` and `E2E_TEST_PASSWORD` are set.
+
+To run authenticated staging coverage, create a disposable Supabase staging user and run:
+
+```bash
+PLAYWRIGHT_BASE_URL=https://your-preview-domain.vercel.app \
+E2E_TEST_EMAIL=<staging-test-email> \
+E2E_TEST_PASSWORD=<staging-test-password> \
+npm run test:e2e
+```
+
+Do not commit the test email or password. If the staging seed has not been applied, authenticated lesson/dashboard assertions may still fail because the database is missing lesson content.
+
 If Vercel Deployment Protection is enabled for Preview, Playwright receives Vercel's authentication HTML instead of the app. Use one of these safe options:
 
 1. Disable Deployment Protection for Preview while staging QA is running, then rerun the smoke test command above.
