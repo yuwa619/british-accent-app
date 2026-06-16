@@ -86,6 +86,8 @@ Phase 10 adds beta readiness hardening: Playwright smoke tests, accessibility la
 
 Phase 11 adds real-environment deployment readiness: a protected `/api/system/health` endpoint that returns safe configuration booleans only, `.env.local.example`, Supabase SQL verification queries, Vercel deployment instructions, and preview-friendly Playwright targeting through `PLAYWRIGHT_BASE_URL`.
 
+Phase 12 adds staging deployment QA readiness: staging Supabase and Vercel preview runbooks, staging QA results, clearer RLS/storage checks, and an updated Supabase verification SQL script. Real staging QA remains blocked until Supabase credentials and a valid Vercel project/token are available.
+
 ## Recording Development Notes
 
 - Recording starts only after the user clicks `Record`.
@@ -164,6 +166,9 @@ The suite covers landing/auth routes, dashboard/progress, lessons, diagnostic mo
 
 - [Provider QA Checklist](docs/PROVIDER_QA_CHECKLIST.md)
 - [Vercel Deployment Guide](docs/VERCEL_DEPLOYMENT_GUIDE.md)
+- [Staging Deployment Runbook](docs/STAGING_DEPLOYMENT_RUNBOOK.md)
+- [Staging Supabase Runbook](docs/STAGING_SUPABASE_RUNBOOK.md)
+- [Staging QA Results](docs/STAGING_QA_RESULTS.md)
 - [Supabase Verification Queries](docs/SUPABASE_VERIFICATION_QUERIES.sql)
 - [Retention Purge Plan](docs/RETENTION_PURGE_PLAN.md)
 - [Known Limitations](docs/KNOWN_LIMITATIONS.md)

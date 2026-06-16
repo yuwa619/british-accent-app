@@ -2,6 +2,8 @@
 
 Use this before inviting beta users into a real environment. Keep mock mode as the default for local development.
 
+For the first staging run, record exact outcomes in `docs/STAGING_QA_RESULTS.md`. Do not mark a provider as passed unless a real staging key was used and the result was observed.
+
 ## Supabase
 
 - Confirm `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are configured only in trusted environments.

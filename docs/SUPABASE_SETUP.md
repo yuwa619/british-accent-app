@@ -76,6 +76,12 @@ docs/SUPABASE_VERIFICATION_QUERIES.sql
 
 These queries confirm migration history, table RLS flags, policies, Storage bucket privacy, seed counts, triggers, and indexes. They do not replace two-user app-level RLS testing.
 
+For staging setup and two-user ownership testing, follow:
+
+```bash
+docs/STAGING_SUPABASE_RUNBOOK.md
+```
+
 ## 5. Configure Auth Redirect URLs
 
 In **Authentication > URL Configuration**, set:

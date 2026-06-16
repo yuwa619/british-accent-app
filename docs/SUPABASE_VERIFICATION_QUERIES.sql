@@ -5,9 +5,24 @@
 -- docs/PROVIDER_QA_CHECKLIST.md as well.
 
 -- 1. Confirm migrations applied in order.
-select version, name, inserted_at
+select *
 from supabase_migrations.schema_migrations
 order by version;
+
+-- 1b. Confirm the expected MVP migration versions are present.
+with expected(version) as (
+  values
+    ('001'),
+    ('002'),
+    ('003'),
+    ('004'),
+    ('005')
+)
+select expected.version, migrations.version is not null as applied
+from expected
+left join supabase_migrations.schema_migrations migrations
+  on migrations.version = expected.version
+order by expected.version;
 
 -- 2. Confirm all expected public tables exist and have RLS enabled.
 select schemaname, tablename, rowsecurity
@@ -96,3 +111,16 @@ from information_schema.columns
 where table_schema = 'public'
   and table_name = 'data_deletion_requests'
 order by ordinal_position;
+
+-- 10. Confirm normal authenticated users only have read policies on content.
+select tablename, cmd, count(*) as policy_count
+from pg_policies
+where schemaname = 'public'
+  and tablename in ('lessons', 'lesson_steps', 'practice_prompts')
+group by tablename, cmd
+order by tablename, cmd;
+
+-- 11. Confirm no Storage objects are public by bucket setting.
+select id, public
+from storage.buckets
+where id = 'recordings';

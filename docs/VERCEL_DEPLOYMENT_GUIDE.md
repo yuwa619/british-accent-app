@@ -2,6 +2,8 @@
 
 Use this guide after the mock-mode MVP checks pass. Do not enable live billing during beta readiness QA.
 
+For the first staging run, follow `docs/STAGING_DEPLOYMENT_RUNBOOK.md` and `docs/STAGING_SUPABASE_RUNBOOK.md`, then record exact outcomes in `docs/STAGING_QA_RESULTS.md`.
+
 ## 1. Prepare Supabase
 
 1. Create separate Supabase projects for staging and production.
