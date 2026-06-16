@@ -1,8 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { CheckCircle2Icon } from "lucide-react";
+import { useState } from "react";
+import { CheckCircle2Icon, ZapIcon } from "lucide-react";
 
+import Link from "next/link";
+
+import { CelebrationOverlay } from "@/components/game/celebration-overlay";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
@@ -26,7 +29,10 @@ export function LessonCompletionCard({
   isComplete: boolean;
   onComplete: () => void;
 }) {
+  const [celebrate, setCelebrate] = useState(false);
   const canComplete = typeof latestScore === "number";
+  const xpReward =
+    50 + (typeof latestScore === "number" ? Math.round(latestScore / 5) : 0);
 
   async function markComplete() {
     await fetch("/api/progress/lesson", {
@@ -42,6 +48,7 @@ export function LessonCompletionCard({
     }).catch(() => undefined);
 
     onComplete();
+    setCelebrate(true);
   }
 
   return (
@@ -56,13 +63,22 @@ export function LessonCompletionCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <p className="text-sm leading-6 text-muted-foreground">
-          {canComplete
-            ? `Latest analysed score: ${Math.round(latestScore)}/100. Mark this lesson complete when you are ready to move on.`
-            : "Analyse a saved recording first, then mark this lesson complete."}
-        </p>
+        <div className="flex items-center gap-3 rounded-xl border bg-muted/30 p-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-xp/12 text-xp">
+            <ZapIcon className="size-5" aria-hidden="true" />
+          </span>
+          <p className="text-sm leading-6 text-muted-foreground">
+            {canComplete
+              ? `Latest analysed score: ${Math.round(latestScore)}/100. Mark this lesson complete to bank +${xpReward} XP.`
+              : "Analyse a saved recording first, then mark this lesson complete to earn XP."}
+          </p>
+        </div>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button disabled={!canComplete || isComplete} onClick={markComplete}>
+          <Button
+            className="tap-scale"
+            disabled={!canComplete || isComplete}
+            onClick={markComplete}
+          >
             <CheckCircle2Icon data-icon="inline-start" />
             {isComplete ? "Completed" : "Mark lesson as complete"}
           </Button>
@@ -77,6 +93,14 @@ export function LessonCompletionCard({
           </Link>
         </div>
       </CardContent>
+
+      <CelebrationOverlay
+        open={celebrate}
+        onClose={() => setCelebrate(false)}
+        title="Lesson complete!"
+        subtitle="Nicely done. Every rep makes your British speech clearer and more confident."
+        xpEarned={xpReward}
+      />
     </Card>
   );
 }

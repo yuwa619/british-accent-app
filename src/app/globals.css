@@ -39,6 +39,14 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-streak: var(--streak);
+  --color-streak-foreground: var(--streak-foreground);
+  --color-xp: var(--xp);
+  --color-xp-foreground: var(--xp-foreground);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -64,6 +72,14 @@
   --accent: oklch(0.94 0.055 156);
   --accent-foreground: oklch(0.25 0.05 162);
   --destructive: oklch(0.577 0.245 27.325);
+  --success: oklch(0.62 0.13 155);
+  --success-foreground: oklch(0.985 0 0);
+  --warning: oklch(0.74 0.15 75);
+  --warning-foreground: oklch(0.26 0.05 75);
+  --streak: oklch(0.72 0.17 52);
+  --streak-foreground: oklch(0.985 0 0);
+  --xp: oklch(0.62 0.16 285);
+  --xp-foreground: oklch(0.985 0 0);
   --border: oklch(0.9 0.014 248);
   --input: oklch(0.9 0.014 248);
   --ring: oklch(0.58 0.08 210);
@@ -99,6 +115,14 @@
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
+  --success: oklch(0.7 0.13 158);
+  --success-foreground: oklch(0.145 0 0);
+  --warning: oklch(0.8 0.14 78);
+  --warning-foreground: oklch(0.205 0.04 78);
+  --streak: oklch(0.76 0.16 55);
+  --streak-foreground: oklch(0.145 0 0);
+  --xp: oklch(0.72 0.15 288);
+  --xp-foreground: oklch(0.145 0 0);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
@@ -126,5 +150,134 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Gamified learning motion + tactile helpers.
+ * Everything below is decorative and respects prefers-reduced-motion.
+ * ------------------------------------------------------------------------- */
+
+@keyframes coach-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+  60% {
+    transform: scale(1.02) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes coach-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes coach-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes coach-pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 var(--tw-shadow-color, oklch(0.72 0.17 52 / 0.5));
+  }
+  70% {
+    box-shadow: 0 0 0 12px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes coach-confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, -10vh, 0) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--confetti-x, 0), 110vh, 0) rotate(720deg);
+  }
+}
+
+@keyframes coach-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-pop-in {
+  animation: coach-pop-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-rise {
+  animation: coach-rise 0.45s ease-out both;
+}
+
+.animate-float {
+  animation: coach-float 3s ease-in-out infinite;
+}
+
+.animate-pulse-ring {
+  animation: coach-pulse-ring 2s ease-out infinite;
+}
+
+.coach-confetti-piece {
+  position: absolute;
+  top: 0;
+  width: 9px;
+  height: 14px;
+  border-radius: 2px;
+  animation: coach-confetti-fall var(--confetti-duration, 2.4s)
+    var(--confetti-delay, 0s) cubic-bezier(0.2, 0.6, 0.4, 1) forwards;
+}
+
+.tap-scale {
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.tap-scale:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop-in,
+  .animate-rise,
+  .animate-float,
+  .animate-pulse-ring,
+  .coach-confetti-piece {
+    animation: none !important;
+  }
+
+  .animate-pop-in,
+  .animate-rise {
+    opacity: 1;
+    transform: none;
+  }
+
+  .coach-confetti-piece {
+    display: none;
+  }
+
+  .tap-scale:active {
+    transform: none;
   }
 }
