@@ -160,6 +160,16 @@ To run the same smoke suite against a Vercel preview:
 PLAYWRIGHT_BASE_URL=https://your-preview-domain.vercel.app npm run test:e2e
 ```
 
+If Vercel Deployment Protection is enabled for the preview, create a Protection Bypass for Automation and provide it only through the local shell or CI environment:
+
+```bash
+PLAYWRIGHT_BASE_URL=https://your-preview-domain.vercel.app \
+VERCEL_AUTOMATION_BYPASS_SECRET=your-local-bypass-value \
+npm run test:e2e
+```
+
+Never commit the bypass value.
+
 The suite covers landing/auth routes, dashboard/progress, lessons, diagnostic mock baseline generation, feedback, shadowing, roleplay typed turns, settings privacy controls, data deletion request, and disabled checkout.
 
 ## Launch Readiness Docs

@@ -197,6 +197,19 @@ PLAYWRIGHT_BASE_URL=https://your-preview-domain.vercel.app npm run test:e2e
 
 The Playwright config defaults to `http://localhost:3100` for local tests so it does not collide with a normal dev server on port 3000. When `PLAYWRIGHT_BASE_URL` is set, it targets that deployed URL and does not start the local dev server.
 
+If Vercel Deployment Protection is enabled for Preview, Playwright receives Vercel's authentication HTML instead of the app. Use one of these safe options:
+
+1. Disable Deployment Protection for Preview while staging QA is running, then rerun the smoke test command above.
+2. Keep Deployment Protection enabled and create a Protection Bypass for Automation in Vercel. Store the bypass value locally or in CI as `VERCEL_AUTOMATION_BYPASS_SECRET`, then run:
+
+```bash
+PLAYWRIGHT_BASE_URL=https://your-preview-domain.vercel.app \
+VERCEL_AUTOMATION_BYPASS_SECRET=your-local-bypass-value \
+npm run test:e2e
+```
+
+Do not commit the bypass value. When `VERCEL_AUTOMATION_BYPASS_SECRET` is set, the Playwright suite appends Vercel's bypass query parameters to both browser navigations and API requests, including `/api/system/health`.
+
 ## 10. Production Promotion
 
 Promote to Production only after:

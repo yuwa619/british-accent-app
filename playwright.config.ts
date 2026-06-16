@@ -25,6 +25,9 @@ export default defineConfig({
           ENABLE_ANALYTICS: "false",
           NEXT_PUBLIC_ENABLE_ANALYTICS: "false",
           ENABLE_SENTRY: "false",
+          NEXT_PUBLIC_SUPABASE_URL: "",
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "",
+          SUPABASE_SERVICE_ROLE_KEY: "",
         },
       }
     : undefined,

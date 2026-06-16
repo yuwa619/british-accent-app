@@ -1,5 +1,7 @@
 import { expect, type Page, test } from "@playwright/test";
 
+import { withVercelProtectionBypass } from "./vercel-bypass";
+
 function collectClientErrors(page: Page) {
   const errors: string[] = [];
 
@@ -19,7 +21,7 @@ function collectClientErrors(page: Page) {
 async function expectHealthyPage(page: Page, path: string, heading: string) {
   const errors = collectClientErrors(page);
 
-  await page.goto(path);
+  await page.goto(withVercelProtectionBypass(path));
   await expect(page.getByRole("heading", { name: heading })).toBeVisible();
   await expect(page.locator("main")).toHaveCount(1);
   await expect(page.getByText("Application error")).toHaveCount(0);
@@ -29,7 +31,9 @@ async function expectHealthyPage(page: Page, path: string, heading: string) {
 
 test.describe("beta smoke coverage", () => {
   test("system health endpoint is protected", async ({ request }) => {
-    const response = await request.get("/api/system/health");
+    const response = await request.get(
+      withVercelProtectionBypass("/api/system/health")
+    );
     expect(response.status()).toBe(401);
     const body = await response.json();
     expect(JSON.stringify(body)).not.toContain("sk-");
@@ -147,7 +151,7 @@ test.describe("beta smoke coverage", () => {
   }) => {
     const errors = collectClientErrors(page);
 
-    await page.goto("/practice/roleplay");
+    await page.goto(withVercelProtectionBypass("/practice/roleplay"));
     await expect(
       page.getByRole("heading", {
         name: "Practise UK workplace conversations turn by turn.",
@@ -181,7 +185,7 @@ test.describe("beta smoke coverage", () => {
   }) => {
     const errors = collectClientErrors(page);
 
-    await page.goto("/settings");
+    await page.goto(withVercelProtectionBypass("/settings"));
     await expect(
       page.getByRole("heading", { name: "Privacy and account control centre." })
     ).toBeVisible();
