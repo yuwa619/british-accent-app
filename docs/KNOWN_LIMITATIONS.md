@@ -1,6 +1,7 @@
 # Known Limitations
 
 - Real Azure, OpenAI, and ElevenLabs provider calls require configured keys and still need live QA.
+- This repository cannot prove live Supabase/provider readiness unless real environment variables are supplied locally or in a Vercel preview.
 - Azure short-audio compatibility with browser `webm` recordings may require transcoding before production.
 - Pitch and intensity feedback is lightweight browser guidance, not scientific acoustic analysis.
 - Mock mode data is session/local only and is not persistent.

@@ -6,6 +6,7 @@
 - [ ] Set Supabase public URL and anon key.
 - [ ] Set `SUPABASE_SERVICE_ROLE_KEY` only in trusted server environments.
 - [ ] Set `MAINTENANCE_SECRET`.
+- [ ] Confirm `GET /api/system/health` returns safe booleans only when called with `MAINTENANCE_SECRET`.
 - [ ] Keep `ENABLE_REAL_AI=false` until provider QA is complete.
 - [ ] Keep `ENABLE_STRIPE_CHECKOUT=false` unless running Stripe test mode.
 - [ ] Keep analytics and Sentry disabled until their privacy checks pass.
@@ -14,6 +15,7 @@
 
 - [ ] Apply all migrations through `005_data_deletion_requests.sql`.
 - [ ] Seed the first 10 lessons.
+- [ ] Run `docs/SUPABASE_VERIFICATION_QUERIES.sql` in the Supabase SQL editor.
 - [ ] Configure Auth redirect URLs for production and preview domains.
 - [ ] Confirm private `recordings` bucket and policies.
 - [ ] Verify RLS with two test users.
@@ -58,6 +60,7 @@
 ## Deployment
 
 - [ ] Deploy to Vercel preview.
+- [ ] Follow `docs/VERCEL_DEPLOYMENT_GUIDE.md`.
 - [ ] Run smoke tests against preview.
 - [ ] Check Vercel logs for server errors.
 - [ ] Confirm cache/build output does not expose secrets.

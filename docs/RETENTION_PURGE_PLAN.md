@@ -8,6 +8,8 @@ POST /api/maintenance/purge-old-recordings
 
 It is intentionally server-only and requires `MAINTENANCE_SECRET`.
 
+The same secret protects `GET /api/system/health`, which is useful for checking deployment configuration without exposing key values.
+
 ## Environment
 
 ```bash

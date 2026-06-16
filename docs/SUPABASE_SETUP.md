@@ -68,6 +68,14 @@ supabase/seed.sql
 
 It inserts the first 10 MVP lessons, 2-3 steps for each lesson, and one practice prompt for each lesson.
 
+After seeding, run the inspection queries in:
+
+```bash
+docs/SUPABASE_VERIFICATION_QUERIES.sql
+```
+
+These queries confirm migration history, table RLS flags, policies, Storage bucket privacy, seed counts, triggers, and indexes. They do not replace two-user app-level RLS testing.
+
 ## 5. Configure Auth Redirect URLs
 
 In **Authentication > URL Configuration**, set:
@@ -184,6 +192,13 @@ Phase 10 retention maintenance:
 - In Supabase mode it uses the server-only service role client, reads `user_settings.retain_recordings_days`, deletes stale Storage objects first, then deletes matching `recordings` rows.
 - In mock mode or without admin credentials it returns a safe no-op response.
 - See `docs/RETENTION_PURGE_PLAN.md` before scheduling this route.
+
+Phase 11 system health:
+
+- `GET /api/system/health` is available for deployment QA.
+- The endpoint requires `MAINTENANCE_SECRET` through `Authorization: Bearer <secret>` or `x-maintenance-secret`.
+- It returns safe booleans only, such as whether Supabase, provider flags, analytics, Sentry, Stripe checkout, and the maintenance secret are configured.
+- It never returns API key values, project URLs, transcripts, recordings, or provider responses.
 
 ## 7. RLS Model
 

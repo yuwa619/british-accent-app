@@ -28,6 +28,14 @@ async function expectHealthyPage(page: Page, path: string, heading: string) {
 }
 
 test.describe("beta smoke coverage", () => {
+  test("system health endpoint is protected", async ({ request }) => {
+    const response = await request.get("/api/system/health");
+    expect(response.status()).toBe(401);
+    const body = await response.json();
+    expect(JSON.stringify(body)).not.toContain("sk-");
+    expect(JSON.stringify(body)).not.toContain("SUPABASE_SERVICE_ROLE_KEY");
+  });
+
   test("landing, auth, privacy, and terms routes render", async ({ page }) => {
     await expectHealthyPage(
       page,

@@ -35,7 +35,7 @@ npm run format:check
 
 ## Environment
 
-Copy `.env.example` to `.env.local` and fill in provider values as each phase needs them. Expensive AI and Stripe flows are feature-flagged off by default:
+Copy `.env.example` or `.env.local.example` to `.env.local` and fill in provider values as each phase needs them. Expensive AI and Stripe flows are feature-flagged off by default:
 
 ```bash
 ENABLE_REAL_AI=false
@@ -83,6 +83,8 @@ Phase 8 adds turn-based AI roleplay practice: scenario selection, session creati
 Phase 9 hardens beta readiness: privacy/account settings, persisted voice data preferences, delete-all-recordings, data deletion requests, safe PostHog analytics helpers, safe Sentry error capture helpers, subscription-ready usage limits, and Stripe Checkout behind `ENABLE_STRIPE_CHECKOUT=false`.
 
 Phase 10 adds beta readiness hardening: Playwright smoke tests, accessibility landmark fixes, protected retention purge maintenance route, provider QA checklist, retention purge plan, known limitations, launch checklist, and final documentation updates.
+
+Phase 11 adds real-environment deployment readiness: a protected `/api/system/health` endpoint that returns safe configuration booleans only, `.env.local.example`, Supabase SQL verification queries, Vercel deployment instructions, and preview-friendly Playwright targeting through `PLAYWRIGHT_BASE_URL`.
 
 ## Recording Development Notes
 
@@ -138,6 +140,7 @@ Phase 10 adds beta readiness hardening: Playwright smoke tests, accessibility la
 - Sentry capture is disabled unless `ENABLE_SENTRY=true` and `SENTRY_DSN` are set. Monitoring helpers are no-op safe when missing.
 - Stripe Checkout is disabled unless `ENABLE_STRIPE_CHECKOUT=true`, `STRIPE_SECRET_KEY`, and `STRIPE_PRO_MONTHLY_PRICE_ID` are configured. Live charging is off by default.
 - Retention purge is available at `POST /api/maintenance/purge-old-recordings` and requires `MAINTENANCE_SECRET`. See [docs/RETENTION_PURGE_PLAN.md](docs/RETENTION_PURGE_PLAN.md).
+- System health is available at `GET /api/system/health` and also requires `MAINTENANCE_SECRET`. It reports safe booleans only and never returns secret values.
 
 ## Testing
 
@@ -147,11 +150,21 @@ Playwright e2e tests run in mock mode and do not require Supabase or provider ke
 npm run test:e2e
 ```
 
+The local Playwright server uses `http://localhost:3100` so it does not collide with the usual `npm run dev` app on port 3000.
+
+To run the same smoke suite against a Vercel preview:
+
+```bash
+PLAYWRIGHT_BASE_URL=https://your-preview-domain.vercel.app npm run test:e2e
+```
+
 The suite covers landing/auth routes, dashboard/progress, lessons, diagnostic mock baseline generation, feedback, shadowing, roleplay typed turns, settings privacy controls, data deletion request, and disabled checkout.
 
 ## Launch Readiness Docs
 
 - [Provider QA Checklist](docs/PROVIDER_QA_CHECKLIST.md)
+- [Vercel Deployment Guide](docs/VERCEL_DEPLOYMENT_GUIDE.md)
+- [Supabase Verification Queries](docs/SUPABASE_VERIFICATION_QUERIES.sql)
 - [Retention Purge Plan](docs/RETENTION_PURGE_PLAN.md)
 - [Known Limitations](docs/KNOWN_LIMITATIONS.md)
 - [Beta Launch Checklist](docs/BETA_LAUNCH_CHECKLIST.md)
